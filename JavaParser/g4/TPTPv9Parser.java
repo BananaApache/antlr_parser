@@ -23,7 +23,7 @@ public class TPTPv9Parser extends Parser {
 		T__31=32, T__32=33, T__33=34, T__34=35, T__35=36, T__36=37, T__37=38, 
 		T__38=39, T__39=40, T__40=41, T__41=42, T__42=43, T__43=44, T__44=45, 
 		T__45=46, T__46=47, T__47=48, T__48=49, T__49=50, T__50=51, T__51=52, 
-		T__52=53, T__53=54, T__54=55, WS=56, Comment=57, Comment_line=58, Comment_block=59, 
+		T__52=53, T__53=54, T__54=55, WS=56, Comment_line=57, Comment=58, Comment_block=59, 
 		Not_star_slash=60, Single_quoted=61, Distinct_object=62, Dollar_word=63, 
 		Dollar_dollar_word=64, Upper_word=65, Lower_word=66, Vline=67, Star=68, 
 		Plus=69, Arrow=70, Less_sign=71, Hash=72, Real=73, Signed_real=74, Unsigned_real=75, 
@@ -172,11 +172,11 @@ public class TPTPv9Parser extends Parser {
 			"'=>'", "'<='", "'<~>'", "'~&'", "'-->'", "':='", "'=='", "'='", "'!='", 
 			"'!!'", "'??'", "'@@+'", "'@@-'", "'@='", "'include('", "'$thf('", "'$tff('", 
 			"'$fof('", "'$cnf('", "'$fot('", null, null, null, null, null, null, 
+			null, null, null, null, null, "'|'", "'*'", "'+'", "'>'", "'<'", "'#'", 
 			null, null, null, null, null, null, null, null, null, null, null, null, 
-			null, null, null, null, null, null, null, null, null, null, null, null, 
-			null, null, null, null, null, null, null, null, null, "'''", null, null, 
-			null, null, null, "'\\\\'", null, null, null, null, null, null, null, 
-			null, "'.\\n'"
+			null, null, null, null, null, null, null, null, null, null, "'''", null, 
+			null, null, null, null, "'\\\\'", null, null, null, null, null, null, 
+			null, null, "'.\\n'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -186,8 +186,8 @@ public class TPTPv9Parser extends Parser {
 			null, null, null, null, null, null, null, null, null, null, null, null, 
 			null, null, null, null, null, null, null, null, null, null, null, null, 
 			null, null, null, null, null, null, null, null, null, null, null, null, 
-			null, null, null, null, null, null, null, null, "WS", "Comment", "Comment_line", 
-			"Comment_block", "Not_star_slash", "Single_quoted", "Distinct_object", 
+			null, null, null, null, null, null, null, null, "WS", "Comment_line", 
+			"Comment", "Comment_block", "Not_star_slash", "Single_quoted", "Distinct_object", 
 			"Dollar_word", "Dollar_dollar_word", "Upper_word", "Lower_word", "Vline", 
 			"Star", "Plus", "Arrow", "Less_sign", "Hash", "Real", "Signed_real", 
 			"Unsigned_real", "Rational", "Signed_rational", "Unsigned_rational", 

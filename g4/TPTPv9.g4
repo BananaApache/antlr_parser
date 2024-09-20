@@ -1,5 +1,66 @@
 grammar TPTPv9;
 WS : [ \r\t\n]+ -> skip ;
+Comment_line : '%' ~[\r\n]* -> skip;
+
+//# HERE ARE THE LEXER RULES
+
+Comment :  Comment_line | Comment_block ;
+///
+Comment_block : [/][*] Not_star_slash [*][*]*[/];
+Not_star_slash : (~'*')* '**' ~('/' | '*')*;
+Single_quoted :  Single_quote   Sq_char   Sq_char * Single_quote ;
+Distinct_object : '"' Do_char+ '"';
+Dollar_word :  Dollar   Alpha_numeric *;
+Dollar_dollar_word :  Dollar   Dollar   Alpha_numeric *;
+Upper_word :  Upper_alpha   Alpha_numeric *;
+Lower_word :  Lower_alpha   Alpha_numeric *;
+Vline : '|';
+Star : '*';
+Plus : '+';
+Arrow : '>';
+Less_sign : '<';
+Hash : '#';
+Real : ( Signed_real | Unsigned_real );
+Signed_real :  Sign   Unsigned_real ;
+Unsigned_real : ( Decimal_fraction | Decimal_exponent );
+Rational : ( Signed_rational | Unsigned_rational );
+Signed_rational :  Sign   Unsigned_rational ;
+Unsigned_rational :  Decimal   Slash   Positive_decimal ;
+Integer : ( Signed_integer | Unsigned_integer );
+Signed_integer :  Sign   Unsigned_integer ;
+Unsigned_integer :  Decimal ;
+Decimal : ( Zero_numeric | Positive_decimal );
+Positive_decimal :  Non_zero_numeric   Numeric *;
+Decimal_exponent : ( Decimal | Decimal_fraction ) Exponent   Exp_integer ;
+Decimal_fraction :  Decimal   Dot_decimal ;
+Dot_decimal :  Dot   Numeric   Numeric *;
+Exp_integer : ( Signed_exp_integer | Unsigned_exp_integer );
+Signed_exp_integer :  Sign   Unsigned_exp_integer ;
+Unsigned_exp_integer :  Numeric   Numeric *;
+Slash :  Slash_char ;
+Slosh :  Slosh_char ;
+Percentage_sign : [%];
+Double_quote : ["];
+Do_char : '\\' ('"' | '\\') ;
+Single_quote : '\'';
+Sq_char : '\\' ('\'' | '\\');
+Sign : [+-];
+Dot : [.];
+Exponent : [Ee];
+Slash_char : [/];
+Slosh_char : '\\\\';
+Zero_numeric : [0];
+Non_zero_numeric : [1-9];
+Numeric : [0-9];
+Lower_alpha : [a-z];
+Upper_alpha : [A-Z];
+Alpha_numeric : ( Lower_alpha | Upper_alpha | Numeric |[_]);
+Dollar : [$];
+Printable_char : .;
+Viewable_char : '.\n';
+
+//# END THE LEXER RULES
+
 
 //%----v9.0.0.0 (TPTP version.internal development number) 
 //%----v9.0.0.1 Added <tff_quantifier>. Added <Hash> (for epsilon terms) to <thf_quantifier> and 
@@ -538,10 +599,6 @@ null : ;
 //%----Operators:   ! ? ~ & | <=> => <= <~> ~| ~& * + 
 //%----Predicates:  = != $true $false 
 //%----For lex/yacc there cannot be spaces on either side of the | here 
-Comment :  Comment_line | Comment_block ;
-Comment_line : [%] Printable_char *;
-Comment_block : [/][*] Not_star_slash [*][*]*[/];
-Not_star_slash : (~'*')* '*' '*'* ~('/' | '*')*;
 //%----Defined comments are a convention used for annotations that are used as additional input for 
 //%----systems. They look like comments, but start with %$ or /*$. A wily user of the syntax can 
 //%----notice the $ and extract information from the "Comment" and pass that on as input to the 
@@ -564,71 +621,21 @@ Not_star_slash : (~'*')* '*' '*'* ~('/' | '*')*;
 //%----  <sys_comment_block>  ::: [/][*]<Dollar> <Dollar> <Not_star_slash>[*][*]*[/] 
 //%----A string that matches both <system_comment> and <defined_comment> should 
 //%----be recognized as <system_comment>, so put these before <defined_comment>. 
-Single_quoted :  Single_quote   Sq_char   Sq_char * Single_quote ;
 //%----<Single_quoted>s contain visible characters. \ is the escape character for ' and \, i.e., 
 //%----\' is not the end of the <Single_quoted>. The token does not include the outer quotes, e.g., 
 //%----'cat' and cat are the same. See <atomic_word> for information about stripping the quotes. 
-Distinct_object :  Double_quote   Do_char * Double_quote ;
 //%---Space and visible characters upto ~, except " and \ Distinct_object>s contain visible 
 //%----characters. \ is the escape character for " and \, i.e., \" is not the end of the 
 //%----<Distinct_object>. <Distinct_object>s are different from (but may be equal to) other tokens, 
 //%----e.g., "cat" is different from 'cat' and cat. Distinct objects are always interpreted as 
 //%----themselves, so if they are different they are unequal, e.g., "Apple" != "Microsoft" is 
 //%----implicit. 
-Dollar_word :  Dollar   Alpha_numeric *;
-Dollar_dollar_word :  Dollar   Dollar   Alpha_numeric *;
-Upper_word :  Upper_alpha   Alpha_numeric *;
-Lower_word :  Lower_alpha   Alpha_numeric *;
 //%----Tokens used in syntax, and cannot be character classes 
-Vline : [|];
-Star : [*];
-Plus : [+];
-Arrow : [ ];
-Less_sign : [ ];
-Hash : [#];
 //%----Numbers. Signs are made part of the same token here. 
-Real : ( Signed_real | Unsigned_real );
-Signed_real :  Sign   Unsigned_real ;
-Unsigned_real : ( Decimal_fraction | Decimal_exponent );
-Rational : ( Signed_rational | Unsigned_rational );
-Signed_rational :  Sign   Unsigned_rational ;
-Unsigned_rational :  Decimal   Slash   Positive_decimal ;
-Integer : ( Signed_integer | Unsigned_integer );
-Signed_integer :  Sign   Unsigned_integer ;
-Unsigned_integer :  Decimal ;
-Decimal : ( Zero_numeric | Positive_decimal );
-Positive_decimal :  Non_zero_numeric   Numeric *;
-Decimal_exponent : ( Decimal | Decimal_fraction ) Exponent   Exp_integer ;
-Decimal_fraction :  Decimal   Dot_decimal ;
-Dot_decimal :  Dot   Numeric   Numeric *;
-Exp_integer : ( Signed_exp_integer | Unsigned_exp_integer );
-Signed_exp_integer :  Sign   Unsigned_exp_integer ;
-Unsigned_exp_integer :  Numeric   Numeric *;
-Slash :  Slash_char ;
-Slosh :  Slosh_char ;
 //%----Character classes 
-Percentage_sign : [%];
-Double_quote : ["];
-Do_char : '\\' ('"' | '\\') ;
-Single_quote : '\'';
 //%---Space and visible characters upto ~, except ' and \ 
-Sq_char : '\\' ('\'' | '\\');
-Sign : [+-];
-Dot : [.];
-Exponent : [Ee];
-Slash_char : [/];
-Slosh_char : '\\\\';
 //%% <bar>                  ::: [|] 
-Zero_numeric : [0];
-Non_zero_numeric : [1-9];
-Numeric : [0-9];
-Lower_alpha : [a-z];
-Upper_alpha : [A-Z];
-Alpha_numeric : ( Lower_alpha | Upper_alpha | Numeric |[_]);
-Dollar : [$];
-Printable_char : .;
 //%----<Printable_char> is any printable ASCII character, codes 32 (space) to 126 (tilde). 
 //%----<Printable_char> does not include tabs, newlines, bells, etc. The use of . does not not 
 //%----exclude tab, so this is a bit loose. 
-Viewable_char : '.\n';
 //%-------------------------------------------------------------------------------------------------- 
