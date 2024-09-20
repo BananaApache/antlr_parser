@@ -2,7 +2,7 @@ grammar TPTPv9;
 WS : [ \r\t\n]+ -> skip ;
 
 //%----v9.0.0.0 (TPTP version.internal development number) 
-//%----v9.0.0.1 Added <tff_quantifier>. Added <hash> (for epsilon terms) to <thf_quantifier> and 
+//%----v9.0.0.1 Added <tff_quantifier>. Added <Hash> (for epsilon terms) to <thf_quantifier> and 
 //%----         <tff_quantifier>. Changed <tff_quantified_formula> to use <tff_quantifier>. 
 //%----v9.0.0.2 Removed axiom_of_choce as an <intro_type> 
 //%----         Renamed <inference_parents> to <parents> 
@@ -10,7 +10,7 @@ WS : [ \r\t\n]+ -> skip ;
 //%----         Aligned introduced and creator with inferred 
 //%----         <internal_source>      :== introduced(<intro_type>,<useful_info>,<parents>) 
 //%----         <creator_source>       :== creator(<creator_name>,<useful_info>,<parents>) 
-//%----v9.0.0.3 Moved <hash> to <fof_quantifier> so it's available in all languages. 
+//%----v9.0.0.3 Moved <Hash> to <fof_quantifier> so it's available in all languages. 
 //%-------------------------------------------------------------------------------------------------- 
 //%----README ... this header provides important meta- and usage information 
 //%---- 
@@ -28,9 +28,9 @@ WS : [ \r\t\n]+ -> skip ;
 //%----there are some restrictions to ensure that the grammar is compatible with standard Prolog: a 
 //%----<TPTP_file> should be readable with read/1. 
 //%---- 
-//%----The syntax of comments is defined by the <comment> rule. Comments may occur between any two 
+//%----The syntax of comments is defined by the <Comment> rule. Comments may occur between any two 
 //%----tokens, but do not act as white space. Comments will normally be discarded at the lexical 
-//%----level, but may be processed by systems that understand them (e.g., if the system comment 
+//%----level, but may be processed by systems that understand them (e.g., if the system Comment 
 //%----convention is followed). 
 //%---- 
 //%----Multiple languages are defined. Depending on your need, you can implement just the one(s) you 
@@ -83,7 +83,7 @@ thf_binary_formula : thf_binary_nonassoc  |  thf_binary_assoc  |  thf_binary_typ
 //%----There's no precedence among binary connectives 
 thf_binary_nonassoc : thf_unit_formula nonassoc_connective thf_unit_formula;
 thf_binary_assoc : thf_or_formula  |  thf_and_formula  |  thf_apply_formula;
-thf_or_formula : thf_unit_formula vline thf_unit_formula  |  thf_or_formula vline thf_unit_formula;
+thf_or_formula : thf_unit_formula Vline thf_unit_formula  |  thf_or_formula Vline thf_unit_formula;
 thf_and_formula : thf_unit_formula '&' thf_unit_formula  |  thf_and_formula '&' thf_unit_formula;
 //%----@ (denoting apply) is left-associative and lambda is right-associative. 
 //%----^ [X] : ^ [Y] : f @ g (where f is a <thf_apply_formula> and g is a <thf_unitary_formula>) 
@@ -152,12 +152,12 @@ thf_unitary_type : thf_unitary_formula;
 thf_apply_type : thf_apply_formula;
 thf_binary_type : thf_mapping_type  |  thf_xprod_type  |  thf_union_type;
 //%----Mapping is right-associative: o > o > o means o > (o > o). 
-thf_mapping_type : thf_unitary_type arrow thf_unitary_type  |  thf_unitary_type arrow thf_mapping_type;
+thf_mapping_type : thf_unitary_type Arrow thf_unitary_type  |  thf_unitary_type Arrow thf_mapping_type;
 //%----Xproduct is left-associative: o * o * o means (o * o) * o. Xproduct 
 //%----can be replaced by tuple types. 
-thf_xprod_type : thf_unitary_type star thf_unitary_type  |  thf_xprod_type star thf_unitary_type;
+thf_xprod_type : thf_unitary_type Star thf_unitary_type  |  thf_xprod_type Star thf_unitary_type;
 //%----Union is left-associative: o + o + o means (o + o) + o. 
-thf_union_type : thf_unitary_type plus thf_unitary_type  |  thf_union_type plus thf_unitary_type;
+thf_union_type : thf_unitary_type Plus thf_unitary_type  |  thf_union_type Plus thf_unitary_type;
 //%----Tuple types, e.g., [a,b,c], are allowed (by the loose syntax) as tuples. 
 thf_subtype : untyped_atom subtype_sign atom;
 //%----These are also used for NHF logic definitions 
@@ -172,7 +172,7 @@ tff_logic_formula : tff_unitary_formula  |  tff_unary_formula  |  tff_binary_for
 tff_binary_formula : tff_binary_nonassoc  |  tff_binary_assoc;
 tff_binary_nonassoc : tff_unit_formula nonassoc_connective tff_unit_formula;
 tff_binary_assoc : tff_or_formula  |  tff_and_formula;
-tff_or_formula : tff_unit_formula vline tff_unit_formula  |  tff_or_formula vline tff_unit_formula;
+tff_or_formula : tff_unit_formula Vline tff_unit_formula  |  tff_or_formula Vline tff_unit_formula;
 tff_and_formula : tff_unit_formula '&' tff_unit_formula  |  tff_and_formula '&' tff_unit_formula;
 tff_unit_formula : tff_unitary_formula  |  tff_unary_formula  |  tff_defined_infix;
 tff_preunit_formula : tff_unitary_formula  |  tff_prefix_unary;
@@ -228,8 +228,8 @@ tff_monotype : tff_atomic_type  |  '('tff_mapping_type')'  |  tf1_quantified_typ
 tff_unitary_type : tff_atomic_type  |  '('tff_xprod_type')';
 tff_atomic_type : type_constant  |  defined_type  |  variable  |  type_functor'('tff_type_arguments')'  |  '('tff_atomic_type')'  |  txf_tuple_type;
 tff_type_arguments : tff_atomic_type  |  tff_atomic_type','tff_type_arguments;
-tff_mapping_type : tff_unitary_type arrow tff_atomic_type;
-tff_xprod_type : tff_unitary_type star tff_atomic_type  |  tff_xprod_type star tff_atomic_type;
+tff_mapping_type : tff_unitary_type Arrow tff_atomic_type;
+tff_xprod_type : tff_unitary_type Star tff_atomic_type  |  tff_xprod_type Star tff_atomic_type;
 //%----For TXF only 
 txf_tuple_type : '['tff_type_list']';
 tff_type_list : tff_top_level_type  |  tff_top_level_type','tff_type_list;
@@ -249,10 +249,10 @@ nxf_parameter_list : nxf_parameter  |  nxf_parameter','nxf_parameter_list;
 nxf_parameter : ntf_index  |  nxf_key_pair;
 nxf_key_pair : txf_definition;
 ntf_connective_name : def_or_sys_constant;
-ntf_index : hash tff_unitary_term;
-ntf_short_connective : '[.]'  |  less_sign'.'arrow  |  '{.}'  |  '(.)';
+ntf_index : Hash tff_unitary_term;
+ntf_short_connective : '[.]'  |  Less_sign'.'Arrow  |  '{.}'  |  '(.)';
 //%----Short connectives are unary operators, cannot be indexed 
-//%----                      | [<ntf_index>] | <less_sign> <ntf_index> <arrow> | 
+//%----                      | [<ntf_index>] | <Less_sign> <ntf_index> <Arrow> | 
 //%----                      {<ntf_index>} 
 //%----NXF logic specifications. Captured by <txf_definition> 
 //%----NHF logic specifications are captured by <thf_definition> 
@@ -298,7 +298,7 @@ fof_binary_formula : fof_binary_nonassoc  |  fof_binary_assoc;
 fof_binary_nonassoc : fof_unit_formula nonassoc_connective fof_unit_formula;
 //%----Associative connectives & and | are in <binary_assoc> 
 fof_binary_assoc : fof_or_formula  |  fof_and_formula;
-fof_or_formula : fof_unit_formula vline fof_unit_formula  |  fof_or_formula vline fof_unit_formula;
+fof_or_formula : fof_unit_formula Vline fof_unit_formula  |  fof_or_formula Vline fof_unit_formula;
 fof_and_formula : fof_unit_formula '&' fof_unit_formula  |  fof_and_formula '&' fof_unit_formula;
 fof_unary_formula : unary_connective fof_unit_formula  |  fof_infix_unary;
 //%----<fof_term> != <fof_term> is equivalent to ~ <fof_term> = <fof_term> 
@@ -349,7 +349,7 @@ fof_formula_tuple_list : fof_logic_formula  |  fof_logic_formula','fof_formula_t
 //%-------------------------------------------------------------------------------------------------- 
 //%----CNF formulae (variables implicitly universally quantified) 
 cnf_formula : cnf_disjunction  |  '(' cnf_formula ')';
-cnf_disjunction : cnf_literal  |  cnf_disjunction vline cnf_literal;
+cnf_disjunction : cnf_literal  |  cnf_disjunction Vline cnf_literal;
 cnf_literal : fof_atomic_formula  |  '~' fof_atomic_formula  |  '~' '('fof_atomic_formula')'  |  fof_infix_unary;
 //%-------------------------------------------------------------------------------------------------- 
 //%----Connectives - THF 
@@ -364,11 +364,11 @@ subtype_sign : '<<';
 tff_unary_connective : unary_connective  |  ntf_short_connective;
 tff_quantifier : fof_quantifier;
 //%----Connectives - FOF 
-fof_quantifier : '!'  |  '?'  |  hash;
-nonassoc_connective : '<=>'  |  '=>'  |  '<='  |  '<~>'  |  '~'vline  |  '~&';
-assoc_connective : vline  |  '&';
+fof_quantifier : '!'  |  '?'  |  Hash;
+nonassoc_connective : '<=>'  |  '=>'  |  '<='  |  '<~>'  |  '~'Vline  |  '~&';
+assoc_connective : Vline  |  '&';
 unary_connective : '~';
-//%----The seqent arrow 
+//%----The seqent Arrow 
 gentzen_arrow : '-->';
 assignment : ':=';
 identical : '==';
@@ -376,12 +376,12 @@ identical : '==';
 type_constant : type_functor;
 type_functor : atomic_word;
 defined_type : atomic_defined_word;
-// <defined_type>         :== $oType | $o | $iType | $i | $tType | $real | $rat | $int 
+// <defined_type>         :== $oType | $o | $iType | $i | $tType | $Real | $rat | $int 
 //%----$oType/$o is the Boolean type, i.e., the type of $true and $false. 
 //%----$iType/$i is non-empty type of individuals, which may be finite or 
-//%----infinite. $tType is the type of all types. $real is the type of <real>s. 
-//%----$rat is the type of <rational>s. $int is the type of <signed_integer>s 
-//%----and <unsigned_integer>s. 
+//%----infinite. $tType is the type of all types. $Real is the type of <Real>s. 
+//%----$rat is the type of <Rational>s. $int is the type of <Signed_integer>s 
+//%----and <Unsigned_integer>s. 
 // <system_type>          :== <atomic_system_word> 
 //%----For all language types 
 atom : untyped_atom  |  defined_constant;
@@ -410,8 +410,8 @@ system_constant : system_functor;
 system_functor : atomic_system_word;
 def_or_sys_constant : defined_constant  |  system_constant;
 th1_defined_term : '!!'  |  '??'  |  '@@+'  |  '@@-'  |  '@=';
-defined_term : number  |  distinct_object;
-variable : upper_word;
+defined_term : number  |  Distinct_object;
+variable : Upper_word;
 //%-------------------------------------------------------------------------------------------------- 
 //%----Formula sources 
 source : general_term;
@@ -493,12 +493,12 @@ useful_info : general_list;
 //%----Include directives 
 include : 'include('file_name include_optionals').';
 include_optionals : null  |  ','formula_selection  |  ','formula_selection','space_name;
-formula_selection : '['name_list']'  |  star;
+formula_selection : '['name_list']'  |  Star;
 name_list : name  |  name','name_list;
 space_name : name;
 //%----Non-logical data 
 general_term : general_data  |  general_data':'general_term  |  general_list;
-general_data : atomic_word  |  general_function  |  variable  |  number  |  distinct_object  |  formula_data;
+general_data : atomic_word  |  general_function  |  variable  |  number  |  Distinct_object  |  formula_data;
 general_function : atomic_word'('general_terms')';
 //%----A <general_data> bind() term is used to record a variable binding in an 
 //%----inference, as an element of the <parent_details> list. 
@@ -508,21 +508,21 @@ formula_data : '$thf('thf_formula')'  |  '$tff('tff_formula')'  |  '$fof('fof_fo
 general_list : '[]'  |  '['general_terms']';
 general_terms : general_term  |  general_term','general_terms;
 //%----General purpose 
-name : atomic_word  |  integer;
+name : atomic_word  |  Integer;
 //%----Integer names are expected to be unsigned 
-atomic_word : Lower_word  |  single_quoted;
-//%----<single_quoted>s are the enclosed <atomic_word> without the quotes. Therefore the <Lower_word> 
-//%----<atomic_word> cat and the <single_quoted> <atomic_word> 'cat' are the same, but <numbers>s and 
+atomic_word : Lower_word  |  Single_quoted;
+//%----<Single_quoted>s are the enclosed <atomic_word> without the quotes. Therefore the <Lower_word> 
+//%----<atomic_word> cat and the <Single_quoted> <atomic_word> 'cat' are the same, but <numbers>s and 
 //%----<variable>s are not <Lower_word>s, so 123' and 123, and 'X' and X, are different. Quotes can 
-//%----be removed from a <single_quoted> <atomic_word>, and is recommended if doing so produces a 
+//%----be removed from a <Single_quoted> <atomic_word>, and is recommended if doing so produces a 
 //%----<Lower_word> <atomic_word>. 
-atomic_defined_word : dollar_word;
-atomic_system_word : dollar_dollar_word;
-number : integer  |  rational  |  real;
+atomic_defined_word : Dollar_word;
+atomic_system_word : Dollar_dollar_word;
+number : Integer  |  Rational  |  Real;
 //%----Numbers are always interpreted as themselves, and are thus implicitly 
 //%----distinct if they have different values, e.g., 1 != 2 is an implicit axiom. 
 //%----All numbers are base 10 at the moment. 
-file_name : single_quoted;
+file_name : Single_quoted;
 null : ;
 //%-------------------------------------------------------------------------------------------------- 
 //%----Rules from here on down are for defining tokens (terminal symbols) of the grammar, assuming 
@@ -531,31 +531,31 @@ null : ;
 //%----notation is used. Single characters are always placed in []s to disable any special meanings 
 //%----(for uniformity this is done to all characters, not only those with special meanings). 
 //%----These are tokens that appear in the syntax rules above. No rules defined here because they 
-//%----appear explicitly in the syntax rules, except that <vline>, <star>, <plus> denote "|", "*", 
+//%----appear explicitly in the syntax rules, except that <Vline>, <Star>, <Plus> denote "|", "*", 
 //%----"+", respectively. 
 //%----Keywords:    fof cnf thf tff include 
 //%----Punctuation: ( ) , . [ ] : 
 //%----Operators:   ! ? ~ & | <=> => <= <~> ~| ~& * + 
 //%----Predicates:  = != $true $false 
 //%----For lex/yacc there cannot be spaces on either side of the | here 
-comment : comment_line|Comment_block;
-comment_line : '%<Printable_char>*';
+Comment :  Comment_line | Comment_block ;
+Comment_line : [%] Printable_char *;
 Comment_block : [/][*] Not_star_slash [*][*]*[/];
-Not_star_slash : ([^*]*[*][*]*[^/*])*[^*]*;
+Not_star_slash : (~'*')* '*' '*'* ~('/' | '*')*;
 //%----Defined comments are a convention used for annotations that are used as additional input for 
 //%----systems. They look like comments, but start with %$ or /*$. A wily user of the syntax can 
-//%----notice the $ and extract information from the "comment" and pass that on as input to the 
+//%----notice the $ and extract information from the "Comment" and pass that on as input to the 
 //%----system. They are analogous to pragmas in programming languages. To extract these separately 
 //%----from regular comments, the rules are: 
 //%----  <defined_comment>    ::- <def_comment_line>|<def_comment_block> 
 //%----  <def_comment_line>   ::: [%]<Dollar> <Printable_char>* 
 //%----  <def_comment_block>  ::: [/][*]<Dollar> <Not_star_slash>[*][*]*[/] 
-//%----A string that matches both <defined_comment> and <comment> should be recognized as 
-//%----<defined_comment>, so put these before <comment>. Defined comments that are in use include: 
+//%----A string that matches both <defined_comment> and <Comment> should be recognized as 
+//%----<defined_comment>, so put these before <Comment>. Defined comments that are in use include: 
 //%----    TO BE ANNOUNCED 
 //%----System comments are a convention used for annotations that may used as additional input to a 
 //%----specific system. They look like comments, but start with %$$ or /*$$. A wily user of the 
-//%----syntax can notice the $$ and extract information from the "comment" and pass that on as input 
+//%----syntax can notice the $$ and extract information from the "Comment" and pass that on as input 
 //%----to the system. The specific system for which the information is intended should be identified 
 //%----after the $$, e.g., /*$$Otter 3.3: Demodulator */ To extract these separately from regular 
 //%----comments, the rules are: 
@@ -564,60 +564,60 @@ Not_star_slash : ([^*]*[*][*]*[^/*])*[^*]*;
 //%----  <sys_comment_block>  ::: [/][*]<Dollar> <Dollar> <Not_star_slash>[*][*]*[/] 
 //%----A string that matches both <system_comment> and <defined_comment> should 
 //%----be recognized as <system_comment>, so put these before <defined_comment>. 
-single_quoted : single_quote sq_char sq_char'*'single_quote;
-//%----<single_quoted>s contain visible characters. \ is the escape character for ' and \, i.e., 
-//%----\' is not the end of the <single_quoted>. The token does not include the outer quotes, e.g., 
+Single_quoted :  Single_quote   Sq_char   Sq_char * Single_quote ;
+//%----<Single_quoted>s contain visible characters. \ is the escape character for ' and \, i.e., 
+//%----\' is not the end of the <Single_quoted>. The token does not include the outer quotes, e.g., 
 //%----'cat' and cat are the same. See <atomic_word> for information about stripping the quotes. 
-distinct_object : Double_quote do_char'*'Double_quote;
-//%---Space and visible characters upto ~, except " and \ distinct_object>s contain visible 
+Distinct_object :  Double_quote   Do_char * Double_quote ;
+//%---Space and visible characters upto ~, except " and \ Distinct_object>s contain visible 
 //%----characters. \ is the escape character for " and \, i.e., \" is not the end of the 
-//%----<distinct_object>. <distinct_object>s are different from (but may be equal to) other tokens, 
+//%----<Distinct_object>. <Distinct_object>s are different from (but may be equal to) other tokens, 
 //%----e.g., "cat" is different from 'cat' and cat. Distinct objects are always interpreted as 
 //%----themselves, so if they are different they are unequal, e.g., "Apple" != "Microsoft" is 
 //%----implicit. 
-dollar_word : Dollar Alpha_numeric'*';
-dollar_dollar_word : Dollar Dollar Alpha_numeric'*';
-upper_word : Upper_alpha Alpha_numeric'*';
-Lower_word : Lower_alpha Alpha_numeric'*';
+Dollar_word :  Dollar   Alpha_numeric *;
+Dollar_dollar_word :  Dollar   Dollar   Alpha_numeric *;
+Upper_word :  Upper_alpha   Alpha_numeric *;
+Lower_word :  Lower_alpha   Alpha_numeric *;
 //%----Tokens used in syntax, and cannot be character classes 
-vline : '|';
-star : '*';
-plus : '+';
-arrow : '>';
-less_sign : '<';
-hash : '#';
+Vline : [|];
+Star : [*];
+Plus : [+];
+Arrow : [ ];
+Less_sign : [ ];
+Hash : [#];
 //%----Numbers. Signs are made part of the same token here. 
-real : '('signed_real|unsigned_real')';
-signed_real : Sign unsigned_real;
-unsigned_real : '('decimal_fraction|decimal_exponent')';
-rational : '('signed_rational|unsigned_rational')';
-signed_rational : Sign unsigned_rational;
-unsigned_rational : decimal slash positive_decimal;
-integer : '('signed_integer|unsigned_integer')';
-signed_integer : Sign unsigned_integer;
-unsigned_integer : decimal;
-decimal : '('Zero_numeric|positive_decimal')';
-positive_decimal : Non_zero_numeric Numeric'*';
-decimal_exponent : '('decimal|decimal_fraction')'Exponent exp_integer;
-decimal_fraction : decimal dot_decimal;
-dot_decimal : Dot Numeric Numeric'*';
-exp_integer : '('signed_exp_integer|unsigned_exp_integer')';
-signed_exp_integer : Sign unsigned_exp_integer;
-unsigned_exp_integer : Numeric Numeric'*';
-slash : Slash_char;
-slosh : slosh_char;
+Real : ( Signed_real | Unsigned_real );
+Signed_real :  Sign   Unsigned_real ;
+Unsigned_real : ( Decimal_fraction | Decimal_exponent );
+Rational : ( Signed_rational | Unsigned_rational );
+Signed_rational :  Sign   Unsigned_rational ;
+Unsigned_rational :  Decimal   Slash   Positive_decimal ;
+Integer : ( Signed_integer | Unsigned_integer );
+Signed_integer :  Sign   Unsigned_integer ;
+Unsigned_integer :  Decimal ;
+Decimal : ( Zero_numeric | Positive_decimal );
+Positive_decimal :  Non_zero_numeric   Numeric *;
+Decimal_exponent : ( Decimal | Decimal_fraction ) Exponent   Exp_integer ;
+Decimal_fraction :  Decimal   Dot_decimal ;
+Dot_decimal :  Dot   Numeric   Numeric *;
+Exp_integer : ( Signed_exp_integer | Unsigned_exp_integer );
+Signed_exp_integer :  Sign   Unsigned_exp_integer ;
+Unsigned_exp_integer :  Numeric   Numeric *;
+Slash :  Slash_char ;
+Slosh :  Slosh_char ;
 //%----Character classes 
 Percentage_sign : [%];
 Double_quote : ["];
-do_char : '\\' ('"' | '\\') ;
-single_quote : '\'';
+Do_char : '\\' ('"' | '\\') ;
+Single_quote : '\'';
 //%---Space and visible characters upto ~, except ' and \ 
-sq_char : '\\' ('\'' | '\\');
+Sq_char : '\\' ('\'' | '\\');
 Sign : [+-];
 Dot : [.];
 Exponent : [Ee];
 Slash_char : [/];
-slosh_char : '\\\\';
+Slosh_char : '\\\\';
 //%% <bar>                  ::: [|] 
 Zero_numeric : [0];
 Non_zero_numeric : [1-9];
@@ -630,5 +630,5 @@ Printable_char : .;
 //%----<Printable_char> is any printable ASCII character, codes 32 (space) to 126 (tilde). 
 //%----<Printable_char> does not include tabs, newlines, bells, etc. The use of . does not not 
 //%----exclude tab, so this is a bit loose. 
-viewable_char : '.\n';
+Viewable_char : '.\n';
 //%-------------------------------------------------------------------------------------------------- 

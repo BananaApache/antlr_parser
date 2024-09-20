@@ -1,6 +1,8 @@
 # Run this
 
 ```
-
 java -jar antlr-4.13.2-complete.jar -o JavaParser g4/TPTPv9.g4; cd JavaParser/g4; javac *.java;  java org.antlr.v4.gui.TestRig TPTPv9 tptp_file -tree ../../testfiles/TEST.p; cd ../../
 ```
+
+## link for antlr grammar debugging in vscode
+https://matveevlife.wordpress.com/2024/06/09/antlr4-with-typescript/

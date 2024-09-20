@@ -216,7 +216,7 @@ tff_arguments           : tff_term | tff_term ',' tff_arguments;
 
 tff_atom_typing         : untyped_atom ':' tff_top_level_type | '('tff_atom_typing')';
 tff_top_level_type      : tff_atomic_type | tff_non_atomic_type;
-tff_non_atomic_type     : tff_mapping_type | <tf1_quantified_type> | '('tff_non_atomic_type')';
+tff_non_atomic_type     : tff_mapping_type | tf1_quantified_type | '('tff_non_atomic_type')';
 tf1_quantified_type     : TyForall '['tff_variable_list']' ':' tff_monotype;
 tff_monotype            : tff_atomic_type | '('tff_mapping_type')' | tf1_quantified_type;
 tff_unitary_type        : tff_atomic_type | '('tff_xprod_type')';

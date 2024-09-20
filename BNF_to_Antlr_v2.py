@@ -188,7 +188,62 @@ def convert_grammar_rule(line, append_EOF=False):
 
 
 # token rule is ::-
+# def convert_lexer_rule(line):
+#     line = line.replace("><", "> <")
+    
+#     before_line = line.split("::-")[0].strip()
+#     before_line = before_line.replace(">", "")
+#     before_line = before_line.replace("<", "")
+    
+#     after_line = line.split("::-")[1].strip()
+    
+#     if after_line.count('[') == 1 and after_line.count(']') == 1:
+#         after_line = "'" + after_line.replace("[", "").replace("]", "") + "'"
+        
+#         return before_line + " : " + remove_quotes(after_line) + ";"
+        
+#     else:
+        
+#         result_str = ""
+#         isInAlligator = False
+        
+#         for char in after_line:
+#             if char == "<":
+#                 isInAlligator = True
+                
+#             if char == ">":
+#                 isInAlligator = False
+                
+#             if not isInAlligator and char != "|" and char != ">" and char != " " and char != "*":
+#                 result_str += "'" + char + "'"
+                
+#             else:
+#                 result_str += char
+                
+#         result_str = result_str.replace(">", "")
+#         result_str = result_str.replace("<", "")
+        
+#         # first_char = before_line[0].upper()
+#         # before_line = first_char + before_line[1:]
+                
+#         return before_line + " : " + remove_quotes(result_str) + ";"
+
+
 def convert_lexer_rule(line):
+        
+    if line.startswith("<do_char>"):
+        return r"Do_char : '\\' ('" + '"' + r"' | '\\') ;"
+    elif line.startswith("<sq_char>"):
+        return r"Sq_char : '\\' ('\'' | '\\');"
+    elif line.startswith("<viewable_char>"):
+        return r"Viewable_char : '.\n';"
+    elif line.startswith("<slosh_char>"):
+        return r"Slosh_char : '\\\\';"
+    elif line.startswith("<single_quote>"):
+        return r"Single_quote : '\'';"
+    elif line.startswith("<not_star_slash>"):
+        return r"Not_star_slash : (~'*')* '*' '*'* ~('/' | '*')*;"
+        
     line = line.replace("><", "> <")
     
     before_line = line.split("::-")[0].strip()
@@ -196,50 +251,30 @@ def convert_lexer_rule(line):
     before_line = before_line.replace("<", "")
     
     after_line = line.split("::-")[1].strip()
+    after_line = after_line.replace("<", " ")
+    after_line = after_line.replace(">", " ")
     
-    if after_line.count('[') == 1 and after_line.count(']') == 1:
-        after_line = "'" + after_line.replace("[", "").replace("]", "") + "'"
-        
-        return before_line + " : " + remove_quotes(after_line) + ";"
-        
-    else:
-        
-        result_str = ""
-        isInAlligator = False
-        
-        for char in after_line:
-            if char == "<":
-                isInAlligator = True
-                
-            if char == ">":
-                isInAlligator = False
-                
-            if not isInAlligator and char != "|" and char != ">" and char != " ":
-                result_str += "'" + char + "'"
-                
-            else:
-                result_str += char
-                
-        result_str = result_str.replace(">", "")
-        result_str = result_str.replace("<", "")
-        
-                
-        return before_line + " : " + remove_quotes(result_str) + ";"
+    first_char = before_line[0].upper()
+    before_line = first_char + before_line[1:]
+    
+    return before_line + " : " + after_line + ";"
 
 
 # token rule is :::
 def convert_character_classes(line):
     
     if line.startswith("<do_char>"):
-        return r"do_char : '\\' ('" + '"' + r"' | '\\') ;"
+        return r"Do_char : '\\' ('" + '"' + r"' | '\\') ;"
     elif line.startswith("<sq_char>"):
-        return r"sq_char : '\\' ('\'' | '\\');"
+        return r"Sq_char : '\\' ('\'' | '\\');"
     elif line.startswith("<viewable_char>"):
-        return r"viewable_char : '.\n';"
+        return r"Viewable_char : '.\n';"
     elif line.startswith("<slosh_char>"):
-        return r"slosh_char : '\\\\';"
+        return r"Slosh_char : '\\\\';"
     elif line.startswith("<single_quote>"):
-        return r"single_quote : '\'';"
+        return r"Single_quote : '\'';"
+    elif line.startswith("<not_star_slash>"):
+        return r"Not_star_slash : (~'*')* '*' '*'* ~('/' | '*')*;"
         
     line = line.replace("><", "> <")
     
@@ -250,35 +285,6 @@ def convert_character_classes(line):
     after_line = line.split(":::")[1].strip()
     after_line = after_line.replace("<", " ")
     after_line = after_line.replace(">", " ")
-    
-    # result_str = ""
-    # isInAlligator = False
-    
-    # index = 0
-    # for char in after_line:
-        
-    #     if char == "<" and after_line[index + 1].isalpha():
-    #         isInAlligator = True
-            
-    #     if char == ">" and not isInAlligator:
-    #         result_str += "'>'"
-            
-    #     if char == ">" and after_line[index - 1].isalpha():
-    #         isInAlligator = False
-            
-    #     if not isInAlligator and char != "|" and char != ">" and char != " ":
-    #         result_str += "'" + char + "'"
-            
-    #     elif isInAlligator and char != "<":
-    #         result_str += char
-            
-    #     elif char == "|":
-    #         result_str += " | "
-        
-    #     elif char == " ":
-    #         result_str += " "
-            
-    #     index += 1
     
     first_char = before_line[0].upper()
     before_line = first_char + before_line[1:]
