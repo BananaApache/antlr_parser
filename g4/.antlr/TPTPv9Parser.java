@@ -31,10 +31,8 @@ public class TPTPv9Parser extends Parser {
 		Unsigned_integer=81, Decimal=82, Positive_decimal=83, Decimal_exponent=84, 
 		Decimal_fraction=85, Dot_decimal=86, Exp_integer=87, Signed_exp_integer=88, 
 		Unsigned_exp_integer=89, Slash=90, Slosh=91, Percentage_sign=92, Double_quote=93, 
-		Do_char=94, Single_quote=95, Sq_char=96, Sign=97, Dot=98, Exponent=99, 
-		Slash_char=100, Slosh_char=101, Zero_numeric=102, Non_zero_numeric=103, 
-		Numeric=104, Lower_alpha=105, Upper_alpha=106, Alpha_numeric=107, Dollar=108, 
-		Printable_char=109, Viewable_char=110;
+		Single_quote=94, Dot=95, Slash_char=96, Slosh_char=97, Zero_numeric=98, 
+		Dollar=99, Printable_char=100, Viewable_char=101;
 	public static final int
 		RULE_tptp_file = 0, RULE_tptp_input = 1, RULE_annotated_formula = 2, RULE_tpi_annotated = 3, 
 		RULE_tpi_formula = 4, RULE_thf_annotated = 5, RULE_tff_annotated = 6, 
@@ -174,9 +172,8 @@ public class TPTPv9Parser extends Parser {
 			"'$fof('", "'$cnf('", "'$fot('", null, null, null, null, null, null, 
 			null, null, null, null, null, "'|'", "'*'", "'+'", "'>'", "'<'", "'#'", 
 			null, null, null, null, null, null, null, null, null, null, null, null, 
-			null, null, null, null, null, null, null, null, null, null, "'''", null, 
-			null, null, null, null, "'\\\\'", null, null, null, null, null, null, 
-			null, null, "'.\\n'"
+			null, null, null, null, null, null, null, null, null, "'''", null, null, 
+			"'\\\\'", null, null, null, "'.\\n'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -194,10 +191,8 @@ public class TPTPv9Parser extends Parser {
 			"Integer", "Signed_integer", "Unsigned_integer", "Decimal", "Positive_decimal", 
 			"Decimal_exponent", "Decimal_fraction", "Dot_decimal", "Exp_integer", 
 			"Signed_exp_integer", "Unsigned_exp_integer", "Slash", "Slosh", "Percentage_sign", 
-			"Double_quote", "Do_char", "Single_quote", "Sq_char", "Sign", "Dot", 
-			"Exponent", "Slash_char", "Slosh_char", "Zero_numeric", "Non_zero_numeric", 
-			"Numeric", "Lower_alpha", "Upper_alpha", "Alpha_numeric", "Dollar", "Printable_char", 
-			"Viewable_char"
+			"Double_quote", "Single_quote", "Dot", "Slash_char", "Slosh_char", "Zero_numeric", 
+			"Dollar", "Printable_char", "Viewable_char"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -11172,7 +11167,7 @@ public class TPTPv9Parser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\u0004\u0001n\u065b\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"+
+		"\u0004\u0001e\u065b\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"+
 		"\u0002\u0007\u0002\u0002\u0003\u0007\u0003\u0002\u0004\u0007\u0004\u0002"+
 		"\u0005\u0007\u0005\u0002\u0006\u0007\u0006\u0002\u0007\u0007\u0007\u0002"+
 		"\b\u0007\b\u0002\t\u0007\t\u0002\n\u0007\n\u0002\u000b\u0007\u000b\u0002"+

@@ -232,11 +232,7 @@ def convert_lexer_rule(line):
 # token rule is :::
 def convert_character_classes(line):
     
-    if line.startswith("<do_char>"):
-        return r"Do_char : '\\' ('" + '"' + r"' | '\\') ;"
-    elif line.startswith("<sq_char>"):
-        return r"Sq_char : '\\' ('\'' | '\\');"
-    elif line.startswith("<viewable_char>"):
+    if line.startswith("<viewable_char>"):
         return r"Viewable_char : '.\n';"
     elif line.startswith("<slosh_char>"):
         return r"Slosh_char : '\\\\';"
@@ -244,6 +240,24 @@ def convert_character_classes(line):
         return r"Single_quote : '\'';"
     elif line.startswith("<not_star_slash>"):
         return r"Not_star_slash : (~'*')* '**' ~('/' | '*')*;"
+    elif line.startswith("<do_char>"):
+        return r"fragment Do_char : [\u0020-\u0021\u0023-\u005B\u005D-\u007E] | '\\'[" + '"\\\\];'
+    elif line.startswith("<sq_char>"):
+        return r"fragment Sq_char : [\u0020-\u0026\u0028-\u005B\u005D-\u007E] | '\\'[" + '"\\\\];'
+    elif line.startswith("<sign>"):
+        return r"fragment Sign : [+-];"
+    elif line.startswith("<exponent>"):
+        return r"fragment Exponent : [Ee];"
+    elif line.startswith("<non_zero_numeric>"):
+        return r"fragment Non_zero_numeric : [1-9];"
+    elif line.startswith("<numeric>"):
+        return r"fragment Numeric : [0-9];"
+    elif line.startswith("<lower_alpha>"):
+        return r"fragment Lower_alpha : [a-z];"
+    elif line.startswith("<upper_alpha>"):
+        return r"fragment Upper_alpha : [A-Z];"
+    elif line.startswith("<alpha_numeric>"):
+        return r"fragment Alpha_numeric : Lower_alpha | Upper_alpha | Numeric | '_';"
         
     line = line.replace("><", "> <")
     
@@ -262,6 +276,7 @@ def convert_character_classes(line):
 
 
 def replace_capitals(lines):
+    
     lexer_rules = []
     
     for line in lines:
@@ -269,6 +284,15 @@ def replace_capitals(lines):
             lexer_rules.append(line.split(":")[0].strip().lower())
             
     lexer_rules.append("comment_line")
+    lexer_rules.append("do_char")
+    lexer_rules.append("sq_char")
+    lexer_rules.append("sign")
+    lexer_rules.append("exponent")
+    lexer_rules.append("non_zero_numeric")
+    lexer_rules.append("numeric")
+    lexer_rules.append("lower_alpha")
+    lexer_rules.append("upper_alpha")
+    lexer_rules.append("alpha_numeric")
             
     pattern = r'\b(' + '|'.join(re.escape(word) for word in lexer_rules) + r')\b'
     

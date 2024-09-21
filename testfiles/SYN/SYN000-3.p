@@ -42,9 +42,12 @@ tcf(first_order_tcf,axiom,
 %----Equality
 tcf(equality,axiom,
     ! [X: $i,Y: $i,Z: $i] :
-      ( ( f(Y) = g(X,f(Y),Z) )
-      | ( f(f(f(b))) != a )
-      | ( X = f(Y) ) ) ).
+      ( 
+        ( f(Y) = g(X,f(Y),Z) )
+        | ( f(f(f(b))) != a )
+        | ( X = f(Y) ) 
+      ) 
+    ).
 
 %----True and false
 tcf(true_false,axiom,
