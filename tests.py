@@ -3,7 +3,7 @@ from colorama import Fore as F
 import subprocess
 import os
 
-testfile = "testfiles/SYN/SYN000-3.p"
+testfile = "testfiles/SYN/SYN000_5.p"
 # testfile = "testfiles/PUZ001+1.p"
 
 print("\nChoose which parser you want to test:\n1: original TPTP\n2: our TPTPv9\n")

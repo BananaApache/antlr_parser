@@ -5,8 +5,8 @@
             "name": "Debug ANTLR4 grammar",
             "type": "antlr-debug",
             "request": "launch",
-            "input": "testfiles/SYN/SYN000-3.p",
-            "grammar": "g4/TPTP.g4",
+            "input": "testfiles/SYN/SYN000_5.p",
+            "grammar": "g4/TPTPv9.g4",
             "printParseTree": true,
             "visualParseTree": true
         }

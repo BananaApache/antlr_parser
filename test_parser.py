@@ -32,8 +32,13 @@ for file in os.listdir("testfiles/SYN/"):
                                         text=True,
                                         stderr=subprocess.STDOUT)
 
+        hasError = False
         for line in output.split("\n"):
             if line.startswith("line"):
+                hasError = True
                 print(F.RED + "PROBLEM IN " + file + F.RESET)
                 break
                         
+        if not hasError:
+            print(F.GREEN + "SUCCESS IN " + file + F.RESET)
+        

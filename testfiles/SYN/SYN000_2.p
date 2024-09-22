@@ -16,7 +16,7 @@
 %            Maximal formula atoms :    3 (   0 avg)
 %            Number of connectives :    4 (   2   ~;   0   |;   0   &)
 %                                         (   0 <=>;   0  =>;   0  <=;   0 <~>)
-%                                         (   1  ~|;   1  ~&}
+%                                         (   1  ~|;   1  ~&)
 %            Maximal formula depth :    5 (   2 avg)
 %            Maximal term depth    :    2 (   1 avg)
 %            Number of types       :    2 (   0 usr)
@@ -29,6 +29,8 @@
 % Comments : 
 % Bugfixes : v5.5.1 - Fixed let_binders.
 %------------------------------------------------------------------------------
+
+
 %----Quoted symbols
 tff(distinct_object,axiom,
     "An Apple" != "A \"Microsoft \\ escape\"" ).

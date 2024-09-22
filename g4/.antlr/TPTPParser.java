@@ -1,4 +1,4 @@
-// Generated from /Users/daniel/Documents/coding_stuff/antlr_parser/g4/TPTP.g4 by ANTLR 4.13.1
+// Generated from /Users/dl/Documents/python_proj/antlr_parser/g4/TPTP.g4 by ANTLR 4.13.1
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;

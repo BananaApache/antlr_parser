@@ -1,12 +1,13 @@
 grammar TPTPv9;
 WS : [ \r\t\n]+ -> skip ;
 Comment_line : '%' ~[\r\n]* -> skip;
+Comment_block : '/*' .*? '*/' -> skip;
 
 //# HERE ARE THE LEXER RULES
 
-Comment :  Comment_line | Comment_block ;
 ///
-Comment_block : [/][*] Not_star_slash [*][*]*[/];
+///
+///
 Not_star_slash : (~'*')* '**' ~('/' | '*')*;
 Single_quoted :  Single_quote   Sq_char   Sq_char * Single_quote ;
 Distinct_object :  Double_quote   Do_char * Double_quote ;
@@ -89,9 +90,9 @@ Viewable_char : '.\n';
 //%----there are some restrictions to ensure that the grammar is compatible with standard Prolog: a 
 //%----<TPTP_file> should be readable with read/1. 
 //%---- 
-//%----The syntax of comments is defined by the <Comment> rule. Comments may occur between any two 
+//%----The syntax of comments is defined by the <comment> rule. Comments may occur between any two 
 //%----tokens, but do not act as white space. Comments will normally be discarded at the lexical 
-//%----level, but may be processed by systems that understand them (e.g., if the system Comment 
+//%----level, but may be processed by systems that understand them (e.g., if the system comment 
 //%----convention is followed). 
 //%---- 
 //%----Multiple languages are defined. Depending on your need, you can implement just the one(s) you 
@@ -119,7 +120,7 @@ annotations : ','source optional_info  |  null;
 //%----   <formula_role> ::= <user_role>-<source> 
 //%----... is now gone. Parsers may choose to be tolerant of it for backwards compatibility. 
 formula_role : Lower_word  |  Lower_word'-'general_term;
-// <formula_role>         :== axiom | hypothesis | definition | assumption | lemma | theorem | corollary | conjecture | negated_conjecture | plain | type | interpretation | fi_domain | fi_functors | fi_predicates | unknown 
+//<formula_role>         :== axiom | hypothesis | definition | assumption | lemma | theorem | corollary | conjecture | negated_conjecture | plain | type | interpretation | fi_domain | fi_functors | fi_predicates | unknown 
 //%----"axiom"s are accepted, without proof. There is no guarantee that the axioms of a problem are 
 //%----consistent. "hypothesis"s are assumed to be true for a particular problem, and are used like 
 //%----"axiom"s. "definition"s are intended to define symbols. They are either universally quantified 
@@ -207,9 +208,9 @@ thf_top_level_type : thf_unitary_type  |  thf_mapping_type  |  thf_apply_type;
 //%----TH1 polymorphic types with binary after quantification. 
 //%----      | (<thf_binary_type>) 
 thf_unitary_type : thf_unitary_formula;
-// <thf_unitary_type>     :== <thf_atomic_type> | <th1_quantified_type> 
-// <thf_atomic_type>      :== <type_constant> | <defined_type> | <variable> | <thf_mapping_type> | (<thf_atomic_type>) 
-// <th1_quantified_type>  :== !> [<thf_variable_list>] : <thf_unitary_type> 
+//<thf_unitary_type>     :== <thf_atomic_type> | <th1_quantified_type> 
+//<thf_atomic_type>      :== <type_constant> | <defined_type> | <variable> | <thf_mapping_type> | (<thf_atomic_type>) 
+//<th1_quantified_type>  :== !> [<thf_variable_list>] : <thf_unitary_type> 
 thf_apply_type : thf_apply_formula;
 thf_binary_type : thf_mapping_type  |  thf_xprod_type  |  thf_union_type;
 //%----Mapping is right-associative: o > o > o means o > (o > o). 
@@ -251,23 +252,23 @@ tff_infix_unary : '(' tff_unitary_term infix_inequality tff_unitary_term ')';
 //%FOR PLAIN TFF <tff_atomic_formula>   ::= <fof_atomic_formula> 
 tff_atomic_formula : tff_plain_atomic  |  tff_defined_atomic  |  tff_system_atomic;
 tff_plain_atomic : constant  |  functor'('tff_arguments')';
-// <tff_plain_atomic>     :== <proposition> | <predicate>(<tff_arguments>) 
+//<tff_plain_atomic>     :== <proposition> | <predicate>(<tff_arguments>) 
 tff_defined_atomic : tff_defined_plain;
 //%---To avoid confusion in TXF a = b | p   | <tff_defined_infix> 
 tff_defined_plain : defined_constant  |  defined_functor'('tff_arguments')'  |  nxf_atom  |  txf_let;
 //% <txf_conditional> 
 //%----<txf_conditional> is omitted from <tff_defined_plain> because $ite is 
 //%----read simply as a <tff_atomic_formula> 
-// <tff_defined_plain>    :== <defined_proposition> | <defined_predicate>(<tff_arguments>) | <nxf_atom> | <txf_conditional> | <txf_let> 
+//<tff_defined_plain>    :== <defined_proposition> | <defined_predicate>(<tff_arguments>) | <nxf_atom> | <txf_conditional> | <txf_let> 
 //%----This is the only one that is strictly a formula, type $o. In TXF, if the 
 //%----LHS/RHS is a formula that does not look like a term, then it must be ()ed 
 //%----per <tff_unitary_term>. If you put an un()ed formula that looks like a term 
 //%----it will be interpreted as a term. 
 tff_defined_infix : '(' tff_unitary_term defined_infix_pred tff_unitary_term ')';
 tff_system_atomic : system_constant  |  system_functor'('tff_arguments')';
-// <tff_system_atomic>    :== <system_proposition> | <system_predicate>(<tff_arguments>) 
+//<tff_system_atomic>    :== <system_proposition> | <system_predicate>(<tff_arguments>) 
 //%----<txf_conditional> is written and read as a <tff_defined_atomic> 
-// <txf_conditional>      :== $ite(<tff_logic_formula>,<tff_term>,<tff_term>) 
+//<txf_conditional>      :== $ite(<tff_logic_formula>,<tff_term>,<tff_term>) 
 txf_let : '$let('txf_let_types','txf_let_defns','tff_term')';
 txf_let_types : tff_atom_typing  |  '['tff_atom_typing_list']';
 tff_atom_typing_list : tff_atom_typing  |  tff_atom_typing','tff_atom_typing_list;
@@ -317,32 +318,32 @@ ntf_short_connective : '[.]'  |  Less_sign'.'Arrow  |  '{.}'  |  '(.)';
 //%----                      {<ntf_index>} 
 //%----NXF logic specifications. Captured by <txf_definition> 
 //%----NHF logic specifications are captured by <thf_definition> 
-// <ntf_semantics_spec>   :== <ntf_logic_name> <identical> [<ntf_logic_spec_list>] 
-// <ntf_logic_name>       :== $modal | $alethic_modal | $deontic_modal | $epistemic_modal | $doxastic_modal | $temporal_instant 
-// <ntf_logic_spec_list>  :== <ntf_logic_spec> | <ntf_logic_spec>,<ntf_logic_spec_list> 
-// <ntf_logic_spec>       :== <ntf_domains_spec> | <ntf_designation_spec> | <ntf_terms_spec> | <ntf_modalities_spec> | <ntf_time_spec> 
-// <ntf_domains_spec>     :== $domains <identical> <ntf_domains_value> 
-// <ntf_domains_value>    :== <ntf_domain_type> | [<ntf_domain_type_list>] 
-// <ntf_domains_type>     :== $constant | $varying | $cumulative | $decreasing | <tff_atomic_type> <identical> <ntf_domains_value> 
-// <ntf_domains_type_list> :== <ntf_domain_type> | <ntf_domain_type>,<ntf_domain_type_list> 
-// <ntf_designation_spec> :== $designation <identical> <ntf_designation_value> 
-// <ntf_designation_value>    :== <ntf_designation_type> | [<ntf_designation_type_list>] 
-// <ntf_designation_type> :== $rigid | $flexible | <tff_atomic_type> <identical> <ntf_designation_value> 
-// <ntf_designation_type_list> :== <ntf_designation_type> | <ntf_designation_type>,<ntf_designation_type_list> 
-// <ntf_terms_spec>       :== $terms <identical> <ntf_terms_value> 
-// <ntf_terms_value>      :== <ntf_terms_type> | [<ntf_terms_type_list>] 
-// <ntf_terms_type>       :== $local | $global | <tff_atomic_type> <identical> <ntf_terms_value> 
-// <ntf_terms_type_list>  :== <ntf_terms_type> | <ntf_terms_type>,<ntf_terms_type_list> 
-// <ntf_modalities_spec>  :== $modalities <identical> <ntf_modalities_value> 
-// <ntf_modalities_value> :== <ntf_modalities_type> | [<ntf_modalities_type_list>] 
-// <ntf_modalities_type>  :== <ntf_modal_system> | <ntf_modal_axiom> | <tff_atomic_type> <identical> <ntf_modalities_value> 
-// <ntf_modalities_type_list> :== <ntf_modalities_type> | <ntf_modalities_type>,<ntf_modalities_type_list> 
-// <ntf_time_spec>        :== $time <identical> <ntf_time_value> 
-// <ntf_time_value>       :== <ntf_time_type> | [<ntf_time_type_list>] 
-// <ntf_time_type>        :== $reflexivity | $irreflexivity | $transitivity | $asymmetry | $anti_symmetry | $linearity | $forward_linearity | $backward_linearity | $beginning | $end | $no_beginning | $no_end | $density | $forward_discreteness | $backward_discreteness | <tff_atomic_type> <identical> <ntf_time_value> 
-// <ntf_time_type_list>   :== <ntf_time_type> | <ntf_time_type>,<ntf_time_type_list> 
-// <ntf_modal_system>     :== $modal_system_K | $modal_system_M | $modal_system_B | $modal_system_D | $modal_system_S4 | $modal_system_S5 
-// <ntf_modal_axiom>      :== $modal_axiom_K | $modal_axiom_M | $modal_axiom_B | $modal_axiom_D | $modal_axiom_4 | $modal_axiom_5 
+//<ntf_semantics_spec>   :== <ntf_logic_name> <identical> [<ntf_logic_spec_list>] 
+//<ntf_logic_name>       :== $modal | $alethic_modal | $deontic_modal | $epistemic_modal | $doxastic_modal | $temporal_instant 
+//<ntf_logic_spec_list>  :== <ntf_logic_spec> | <ntf_logic_spec>,<ntf_logic_spec_list> 
+//<ntf_logic_spec>       :== <ntf_domains_spec> | <ntf_designation_spec> | <ntf_terms_spec> | <ntf_modalities_spec> | <ntf_time_spec> 
+//<ntf_domains_spec>     :== $domains <identical> <ntf_domains_value> 
+//<ntf_domains_value>    :== <ntf_domain_type> | [<ntf_domain_type_list>] 
+//<ntf_domains_type>     :== $constant | $varying | $cumulative | $decreasing | <tff_atomic_type> <identical> <ntf_domains_value> 
+//<ntf_domains_type_list> :== <ntf_domain_type> | <ntf_domain_type>,<ntf_domain_type_list> 
+//<ntf_designation_spec> :== $designation <identical> <ntf_designation_value> 
+//<ntf_designation_value>    :== <ntf_designation_type> | [<ntf_designation_type_list>] 
+//<ntf_designation_type> :== $rigid | $flexible | <tff_atomic_type> <identical> <ntf_designation_value> 
+//<ntf_designation_type_list> :== <ntf_designation_type> | <ntf_designation_type>,<ntf_designation_type_list> 
+//<ntf_terms_spec>       :== $terms <identical> <ntf_terms_value> 
+//<ntf_terms_value>      :== <ntf_terms_type> | [<ntf_terms_type_list>] 
+//<ntf_terms_type>       :== $local | $global | <tff_atomic_type> <identical> <ntf_terms_value> 
+//<ntf_terms_type_list>  :== <ntf_terms_type> | <ntf_terms_type>,<ntf_terms_type_list> 
+//<ntf_modalities_spec>  :== $modalities <identical> <ntf_modalities_value> 
+//<ntf_modalities_value> :== <ntf_modalities_type> | [<ntf_modalities_type_list>] 
+//<ntf_modalities_type>  :== <ntf_modal_system> | <ntf_modal_axiom> | <tff_atomic_type> <identical> <ntf_modalities_value> 
+//<ntf_modalities_type_list> :== <ntf_modalities_type> | <ntf_modalities_type>,<ntf_modalities_type_list> 
+//<ntf_time_spec>        :== $time <identical> <ntf_time_value> 
+//<ntf_time_value>       :== <ntf_time_type> | [<ntf_time_type_list>] 
+//<ntf_time_type>        :== $reflexivity | $irreflexivity | $transitivity | $asymmetry | $anti_symmetry | $linearity | $forward_linearity | $backward_linearity | $beginning | $end | $no_beginning | $no_end | $density | $forward_discreteness | $backward_discreteness | <tff_atomic_type> <identical> <ntf_time_value> 
+//<ntf_time_type_list>   :== <ntf_time_type> | <ntf_time_type>,<ntf_time_type_list> 
+//<ntf_modal_system>     :== $modal_system_K | $modal_system_M | $modal_system_B | $modal_system_D | $modal_system_S4 | $modal_system_S5 
+//<ntf_modal_axiom>      :== $modal_axiom_K | $modal_axiom_M | $modal_axiom_B | $modal_axiom_D | $modal_axiom_4 | $modal_axiom_5 
 //%-------------------------------------------------------------------------------------------------- 
 //%----TCF formulae. 
 tcf_formula : tcf_logic_formula  |  tff_atom_typing;
@@ -372,10 +373,10 @@ fof_quantified_formula : fof_quantifier '['fof_variable_list']' ':' fof_unit_for
 fof_variable_list : variable  |  variable','fof_variable_list;
 fof_atomic_formula : fof_plain_atomic_formula  |  fof_defined_atomic_formula  |  fof_system_atomic_formula;
 fof_plain_atomic_formula : fof_plain_term;
-// <fof_plain_atomic_formula> :== <proposition> | <predicate>(<fof_arguments>) 
+//<fof_plain_atomic_formula> :== <proposition> | <predicate>(<fof_arguments>) 
 fof_defined_atomic_formula : fof_defined_plain_formula  |  fof_defined_infix_formula;
 fof_defined_plain_formula : fof_defined_plain_term;
-// <fof_defined_plain_formula> :== <defined_proposition> | <defined_predicate>(<fof_arguments>) 
+//<fof_defined_plain_formula> :== <defined_proposition> | <defined_predicate>(<fof_arguments>) 
 fof_defined_infix_formula : fof_term defined_infix_pred fof_term;
 //%----System terms have system specific interpretations 
 fof_system_atomic_formula : fof_system_term;
@@ -437,36 +438,36 @@ identical : '==';
 type_constant : type_functor;
 type_functor : atomic_word;
 defined_type : atomic_defined_word;
-// <defined_type>         :== $oType | $o | $iType | $i | $tType | $Real | $rat | $int 
+//<defined_type>         :== $oType | $o | $iType | $i | $tType | $Real | $rat | $int 
 //%----$oType/$o is the Boolean type, i.e., the type of $true and $false. 
 //%----$iType/$i is non-empty type of individuals, which may be finite or 
 //%----infinite. $tType is the type of all types. $Real is the type of <Real>s. 
 //%----$rat is the type of <Rational>s. $int is the type of <Signed_integer>s 
 //%----and <Unsigned_integer>s. 
-// <system_type>          :== <atomic_system_word> 
+//<system_type>          :== <atomic_system_word> 
 //%----For all language types 
 atom : untyped_atom  |  defined_constant;
 untyped_atom : constant  |  system_constant;
-// <proposition>          :== <predicate> 
-// <predicate>            :== <atomic_word> 
-// <defined_proposition>  :== <defined_predicate> 
-// <defined_proposition>  :== $true | $false 
-// <defined_predicate>    :== <atomic_defined_word> 
-// <defined_predicate>    :== $distinct | $less | $lesseq | $greater | $greatereq | $is_int | $is_rat | $box | $dia 
+//<proposition>          :== <predicate> 
+//<predicate>            :== <atomic_word> 
+//<defined_proposition>  :== <defined_predicate> 
+//<defined_proposition>  :== $true | $false 
+//<defined_predicate>    :== <atomic_defined_word> 
+//<defined_predicate>    :== $distinct | $less | $lesseq | $greater | $greatereq | $is_int | $is_rat | $box | $dia 
 //%----$distinct is part of the TFF, TXF, THF, NXF, and NHF syntax. $distinct takes one or more 
 //%----constants of the same type as arguments, and indicates that the arguments are pairwise !=. 
 //%----$distinct can be used only as a fact in an axiom-like annotated formula (e.g., not in a 
 //%----conjecture), and not under any connective. 
 defined_infix_pred : infix_equality;
-// <system_proposition>   :== <system_predicate> 
-// <system_predicate>     :== <atomic_system_word> 
+//<system_proposition>   :== <system_predicate> 
+//<system_predicate>     :== <atomic_system_word> 
 infix_equality : '=';
 infix_inequality : '!=';
 constant : functor;
 functor : atomic_word;
 defined_constant : defined_functor;
 defined_functor : atomic_defined_word;
-// <defined_functor>      :== $uminus | $sum | $difference | $product | $quotient | $quotient_e | $quotient_t | $quotient_f | $remainder_e | $remainder_t | $remainder_f | $floor | $ceiling | $truncate | $round | $to_int | $to_rat | $to_real 
+//<defined_functor>      :== $uminus | $sum | $difference | $product | $quotient | $quotient_e | $quotient_t | $quotient_f | $remainder_e | $remainder_t | $remainder_f | $floor | $ceiling | $truncate | $round | $to_int | $to_rat | $to_real 
 system_constant : system_functor;
 system_functor : atomic_system_word;
 def_or_sys_constant : defined_constant  |  system_constant;
@@ -476,54 +477,54 @@ variable : Upper_word;
 //%-------------------------------------------------------------------------------------------------- 
 //%----Formula sources 
 source : general_term;
-// <source>               :== <dag_source> | <internal_source> | <external_source> | unknown | [<sources>] 
+//<source>               :== <dag_source> | <internal_source> | <external_source> | unknown | [<sources>] 
 //%----Alternative sources are recorded like this, thus allowing representation 
 //%----of alternative derivations with shared parts. 
-// <sources>              :== <source> | <source>,<sources> 
+//<sources>              :== <source> | <source>,<sources> 
 //%----Only a <dag_source> can be a <name>, i.e., derived formulae can be 
 //%----identified by a <name> or an <inference_record> 
-// <dag_source>           :== <name> | <inference_record> 
-// <inference_record>     :== inference(<inference_rule>,<useful_info>,<parents>) 
-// <inference_rule>       :== <atomic_word> 
+//<dag_source>           :== <name> | <inference_record> 
+//<inference_record>     :== inference(<inference_rule>,<useful_info>,<parents>) 
+//<inference_rule>       :== <atomic_word> 
 //%----Examples are          deduction | modus_tollens | modus_ponens | rewrite | resolution | 
 //%----                      paramodulation | factorization | cnf_conversion | cnf_refutation | ... 
-// <internal_source>      :== introduced(<intro_type>,<useful_info>,<parents>) 
-// <intro_type>           :== definition | tautology | assumption 
+//<internal_source>      :== introduced(<intro_type>,<useful_info>,<parents>) 
+//<intro_type>           :== definition | tautology | assumption 
 //%----This should be used to record the symbol being defined, or the function 
 //%----for the axiom of choice 
-// <external_source>      :== <file_source> | <theory> | <creator_source> 
-// <file_source>          :== file(<file_name> <file_info>) 
-// <file_info>            :== ,<name> | <null> 
-// <theory>               :== theory(<theory_name> <optional_info>) 
-// <theory_name>          :== equality | ac 
+//<external_source>      :== <file_source> | <theory> | <creator_source> 
+//<file_source>          :== file(<file_name> <file_info>) 
+//<file_info>            :== ,<name> | <null> 
+//<theory>               :== theory(<theory_name> <optional_info>) 
+//<theory_name>          :== equality | ac 
 //%----More theory names may be added in the future. The <optional_info> is 
 //%----used to store, e.g., which axioms of equality have been implicitly used, 
 //%----e.g., theory(equality,[rst]). Standard format still to be decided. 
-// <creator_source>       :== creator(<creator_name>,<useful_info>,<parents>) 
-// <creator_name>         :== <atomic_word> 
+//<creator_source>       :== creator(<creator_name>,<useful_info>,<parents>) 
+//<creator_name>         :== <atomic_word> 
 //%----<parents> can be empty in cases when there is a justification for a tautologous theorem. In  
 //%----cases when a tautology is introduced as a leaf, e.g., for splitting, then use an  
 //%----<internal_source>. 
-// <parents>              :== [] | [<parent_list>] 
-// <parent_list>          :== <parent_info> | <parent_info>,<parent_list> 
-// <parent_info>          :== <source> <parent_details> 
-// <parent_details>       :== :<general_list> | <null> 
+//<parents>              :== [] | [<parent_list>] 
+//<parent_list>          :== <parent_info> | <parent_info>,<parent_list> 
+//<parent_info>          :== <source> <parent_details> 
+//<parent_details>       :== :<general_list> | <null> 
 //%----Useful info fields 
 optional_info : ','useful_info  |  null;
 useful_info : general_list;
-// <useful_info>          :== [] | [<info_items>] 
-// <info_items>           :== <info_item> | <info_item>,<info_items> 
-// <info_item>            :== <formula_item> | <inference_item> | <general_function> 
+//<useful_info>          :== [] | [<info_items>] 
+//<info_items>           :== <info_item> | <info_item>,<info_items> 
+//<info_item>            :== <formula_item> | <inference_item> | <general_function> 
 //%----Useful info for formula records 
-// <formula_item>         :== <description_item> | <iquote_item> 
-// <description_item>     :== description(<atomic_word>) 
-// <iquote_item>          :== iquote(<atomic_word>) 
+//<formula_item>         :== <description_item> | <iquote_item> 
+//<description_item>     :== description(<atomic_word>) 
+//<iquote_item>          :== iquote(<atomic_word>) 
 //%----<iquote_item>s are used for recording exactly what the system output about 
 //%----the inference step. In the future it is planned to encode this information 
 //%----in standardized forms as <parent_details> in each <inference_record>. 
 //%----Useful info for inference records 
-// <inference_item>       :== <inference_status> | <assumptions_record> | <new_symbol_record> | <refutation> 
-// <inference_status>     :== status(<status_value>) | <inference_info> 
+//<inference_item>       :== <inference_status> | <assumptions_record> | <new_symbol_record> | <refutation> 
+//<inference_status>     :== status(<status_value>) | <inference_info> 
 //%----These are the success status values from the SZS ontology. The most 
 //%----commonly used values are: 
 //%----  thm - Every model of the parent formulae is a model of the inferred formula. Regular logical 
@@ -533,24 +534,24 @@ useful_info : general_list;
 //%----  esa - There exists a model of the parent formulae iff there exists a model of the inferred 
 //%----        formula. Used for Skolemization steps. 
 //%----For the full hierarchy see the SZSOntology file distributed with the TPTP. 
-// <status_value>         :== suc | unp | sap | esa | sat | fsa | thm | eqv | tac | wec | eth | tau | wtc | wth | cax | sca | tca | wca | cup | csp | ecs | csa | cth | ceq | unc | wcc | ect | fun | uns | wuc | wct | scc | uca | noc 
+//<status_value>         :== suc | unp | sap | esa | sat | fsa | thm | eqv | tac | wec | eth | tau | wtc | wth | cax | sca | tca | wca | cup | csp | ecs | csa | cth | ceq | unc | wcc | ect | fun | uns | wuc | wct | scc | uca | noc 
 //%----<inference_info> is used to record standard information associated with an arbitrary inference 
 //%----rule. The <inference_rule> is the same as the <inference_rule> of the <inference_record>. The 
 //%----<atomic_word> indicates the information being recorded in the <general_list>. The 
 //%----<atomic_word> are (loosely) set by TPTP conventions, and include esplit, sr_split, and 
 //%----discharge. 
-// <inference_info>       :== <inference_rule>(<atomic_word>,<general_list>) 
+//<inference_info>       :== <inference_rule>(<atomic_word>,<general_list>) 
 //%----An <assumptions_record> lists the names of assumptions upon which this 
 //%----inferred formula depends. These must be discharged in a completed proof. 
-// <assumptions_record>   :== assumptions([<name_list>]) 
+//<assumptions_record>   :== assumptions([<name_list>]) 
 //%----A <refutation> record names a file in which the inference recorded here 
 //%----is recorded as a proof by refutation. 
-// <refutation>           :== refutation(<file_source>) 
+//<refutation>           :== refutation(<file_source>) 
 //%----A <new_symbol_record> provides information about a newly introduced symbol. 
-// <new_symbol_record>    :== new_symbols(<atomic_word>,[<new_symbol_list>]) 
-// <new_symbol_list>      :== <principal_symbol> | <principal_symbol>,<new_symbol_list> 
+//<new_symbol_record>    :== new_symbols(<atomic_word>,[<new_symbol_list>]) 
+//<new_symbol_list>      :== <principal_symbol> | <principal_symbol>,<new_symbol_list> 
 //%----Principal symbols are predicates, functions, variables 
-// <principal_symbol>     :== <functor> | <variable> 
+//<principal_symbol>     :== <functor> | <variable> 
 //%----Include directives 
 include : 'include('file_name include_optionals').';
 include_optionals : null  |  ','formula_selection  |  ','formula_selection','space_name;
@@ -563,8 +564,8 @@ general_data : atomic_word  |  general_function  |  variable  |  number  |  Dist
 general_function : atomic_word'('general_terms')';
 //%----A <general_data> bind() term is used to record a variable binding in an 
 //%----inference, as an element of the <parent_details> list. 
-// <general_data>         :== bind(<variable>,<formula_data>) | bind_type(<variable>,<bound_type>) 
-// <bound_type>           :== $thf(<thf_top_level_type>) | $tff(<tff_top_level_type>) 
+//<general_data>         :== bind(<variable>,<formula_data>) | bind_type(<variable>,<bound_type>) 
+//<bound_type>           :== $thf(<thf_top_level_type>) | $tff(<tff_top_level_type>) 
 formula_data : '$thf('thf_formula')'  |  '$tff('tff_formula')'  |  '$fof('fof_formula')'  |  '$cnf('cnf_formula')'  |  '$fot('fof_term')';
 general_list : '[]'  |  '['general_terms']';
 general_terms : general_term  |  general_term','general_terms;
@@ -601,18 +602,18 @@ null : ;
 //%----For lex/yacc there cannot be spaces on either side of the | here 
 //%----Defined comments are a convention used for annotations that are used as additional input for 
 //%----systems. They look like comments, but start with %$ or /*$. A wily user of the syntax can 
-//%----notice the $ and extract information from the "Comment" and pass that on as input to the 
+//%----notice the $ and extract information from the "comment" and pass that on as input to the 
 //%----system. They are analogous to pragmas in programming languages. To extract these separately 
 //%----from regular comments, the rules are: 
 //%----  <defined_comment>    ::- <def_comment_line>|<def_comment_block> 
 //%----  <def_comment_line>   ::: [%]<Dollar> <Printable_char>* 
 //%----  <def_comment_block>  ::: [/][*]<Dollar> <Not_star_slash>[*][*]*[/] 
-//%----A string that matches both <defined_comment> and <Comment> should be recognized as 
-//%----<defined_comment>, so put these before <Comment>. Defined comments that are in use include: 
+//%----A string that matches both <defined_comment> and <comment> should be recognized as 
+//%----<defined_comment>, so put these before <comment>. Defined comments that are in use include: 
 //%----    TO BE ANNOUNCED 
 //%----System comments are a convention used for annotations that may used as additional input to a 
 //%----specific system. They look like comments, but start with %$$ or /*$$. A wily user of the 
-//%----syntax can notice the $$ and extract information from the "Comment" and pass that on as input 
+//%----syntax can notice the $$ and extract information from the "comment" and pass that on as input 
 //%----to the system. The specific system for which the information is intended should be identified 
 //%----after the $$, e.g., /*$$Otter 3.3: Demodulator */ To extract these separately from regular 
 //%----comments, the rules are: 

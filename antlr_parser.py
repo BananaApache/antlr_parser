@@ -36,6 +36,7 @@ def write_antlr_file(antlr_lines):
 grammar TPTPv9;
 WS : [ \r\t\n]+ -> skip ;
 Comment_line : '%' ~[\r\n]* -> skip;
+Comment_block : '/*' .*? '*/' -> skip;
     """
 
     for line in lexer_rules.split("\n"):
@@ -126,7 +127,47 @@ def convert_comment(line):
 # semantic rule is :==
 # IGNORE THESE RULES FOR NOW
 def convert_semantic_rule(line):
-    return "// " + line
+    
+    line = line.replace("><", "> <")
+    
+    before_line = line.split(":==")[0].strip()
+    before_line = before_line.replace(">", "")
+    before_line = before_line.replace("<", "")
+    
+    after_line = line.split(":==")[1].strip()
+    result_str = ""
+    isInAlligator = False
+    
+    index = 0
+    for char in after_line:
+        if "<<" in after_line:
+            return before_line + " : " + "'<<'" + ";"
+        
+        if char == "<" and after_line[index + 1].isalpha():
+            isInAlligator = True
+            
+        if char == ">" and not isInAlligator:
+            result_str += "'>'"
+            
+        if char == ">" and after_line[index - 1].isalpha():
+            isInAlligator = False
+            
+        if not isInAlligator and char != "|" and char != ">" and char != " ":
+            result_str += "'" + char + "'"
+            
+        elif isInAlligator and char != "<":
+            result_str += char
+            
+        elif char == "|":
+            result_str += " | "
+        
+        elif char == " ":
+            result_str += " "
+            
+        index += 1
+    
+            
+    return before_line + " : " + remove_quotes(result_str) + ";"
 
 
 def remove_quotes(line):
@@ -205,6 +246,10 @@ def convert_lexer_rule(line):
         return r"Single_quote : '\'';"
     elif line.startswith("<comment_line>"):
         return "///"
+    elif line.startswith("<comment_block>"):
+        return "///"
+    elif line.startswith("<comment>"):
+        return "///"
         
     line = line.replace("><", "> <")
     
@@ -258,6 +303,12 @@ def convert_character_classes(line):
         return r"fragment Upper_alpha : [A-Z];"
     elif line.startswith("<alpha_numeric>"):
         return r"fragment Alpha_numeric : Lower_alpha | Upper_alpha | Numeric | '_';"
+    elif line.startswith("<comment_line>"):
+        return "///"
+    elif line.startswith("<comment_block>"):
+        return "///"
+    elif line.startswith("<comment>"):
+        return "///"
         
     line = line.replace("><", "> <")
     
@@ -344,7 +395,8 @@ def main():
             
         # semantic rule is :==
         elif ":==" in bnf_lines[index]:
-            bnf_line = convert_semantic_rule(bnf_lines[index])
+            # bnf_line = convert_semantic_rule(bnf_lines[index])
+            bnf_line = convert_comment(bnf_lines[index])
             antlr_lines.append(bnf_line)
     
     antlr_lines = replace_capitals(["//# HERE ARE THE LEXER RULES\n"] + token_rules + ["\n//# END THE LEXER RULES\n\n"] + antlr_lines)

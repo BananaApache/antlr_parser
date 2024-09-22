@@ -60,7 +60,7 @@ fof(single_quoted,axiom,
     | 'A predicate'(a)
     | p('A constant')
     | p('A function'(a))
-    | p('A \'quoted \\ escape\'') ) ).
+    | p('A \\'quoted \\ escape\'') ) ).
 
 %----Connectives - seen |, &, =>, ~ already
 fof(useful_connectives,axiom,
