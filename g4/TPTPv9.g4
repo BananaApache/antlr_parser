@@ -44,7 +44,7 @@ Percentage_sign : [%];
 Double_quote : ["];
 fragment Do_char : [\u0020-\u0021\u0023-\u005B\u005D-\u007E] | '\\'["\\];
 Single_quote : '\'';
-fragment Sq_char : [\u0020-\u0026\u0028-\u005B\u005D-\u007E] | '\\'["\\];
+fragment Sq_char : [\u0020-\u0026\u0028-\u005B\u005D-\u007E] | '\\\\' | '\\\'';
 fragment Sign : [+-];
 Dot : [.];
 fragment Exponent : [Ee];
@@ -73,6 +73,8 @@ Viewable_char : '.\n';
 //%----         <internal_source>      :== introduced(<intro_type>,<useful_info>,<parents>) 
 //%----         <creator_source>       :== creator(<creator_name>,<useful_info>,<parents>) 
 //%----v9.0.0.3 Moved <Hash> to <fof_quantifier> so it's available in all languages. 
+//%----v9.0.0.4 Removed ()s around <thf_defined_infix> and <thf_infix_unary> HELP, DOES THAT BREAK ANYTHING? 
+//%----v9.0.0.4 Removed ()s around <tff_defined_infix> and <tff_infix_unary> HELP, DOES THAT BREAK ANYTHING? 
 //%-------------------------------------------------------------------------------------------------- 
 //%----README ... this header provides important meta- and usage information 
 //%---- 
@@ -98,7 +100,7 @@ Viewable_char : '.\n';
 //%----Multiple languages are defined. Depending on your need, you can implement just the one(s) you 
 //%----need. The common rules for atoms, terms, etc, come after the definitions of the languages, and 
 //%----mostly all needed for all the languages. 
-//%-------------------------------------------------------------------------------------------------- 
+//%----Top of Page----------------------------------------------------------------------------------- 
 //%----Files. Empty file is OK. 
 tptp_file               : tptp_input* EOF;
 tptp_input              : annotated_formula | include;
@@ -137,7 +139,7 @@ formula_role : Lower_word  |  Lower_word'-'general_term;
 //%----recording the domain, interpretation of functors, and interpretation of predicates, for a 
 //%----finite interpretation. "type" defines the type globally for one symbol; treat as $true. 
 //%----"unknown"s have unknown role, and this is an error situation. 
-//%-------------------------------------------------------------------------------------------------- 
+//%----Top of Page----------------------------------------------------------------------------------- 
 //%----THF formulae. 
 thf_formula : thf_logic_formula  |  thf_atom_typing  |  thf_subtype;
 thf_logic_formula : thf_unitary_formula  |  thf_unary_formula  |  thf_binary_formula  |  thf_defined_infix  |  thf_definition  |  thf_sequent;
@@ -162,7 +164,7 @@ thf_variable_list : thf_typed_variable  |  thf_typed_variable','thf_variable_lis
 thf_typed_variable : variable ':' thf_top_level_type;
 thf_unary_formula : thf_prefix_unary  |  thf_infix_unary;
 thf_prefix_unary : thf_unary_connective thf_preunit_formula;
-thf_infix_unary : '(' thf_unitary_term infix_inequality thf_unitary_term ')';
+thf_infix_unary : thf_unitary_term infix_inequality thf_unitary_term;
 thf_atomic_formula : thf_plain_atomic  |  thf_defined_atomic  |  thf_system_atomic  |  thf_fof_function;
 thf_plain_atomic : constant  |  thf_tuple;
 //%----<thf_plain_atomic> includes <thf_tuple> because tuples can be formulae 
@@ -175,7 +177,7 @@ thf_defined_term : defined_term  |  th1_defined_term;
 //%----The ()s are really optional. I have reformated the TPTP to include them so, e.g., 
 //%----! [X:foo] a = X is formatted as ! [X:foo] (a = X) to save the lives of parsers that would 
 //%----parse it as (! [X:foo] a) = X and throw an error. 
-thf_defined_infix : '(' thf_unitary_term defined_infix_pred thf_unitary_term ')';
+thf_defined_infix : thf_unitary_term defined_infix_pred thf_unitary_term;
 //% <thf_defined_infix>    ::= <thf_unitary_term> <defined_infix_pred> <thf_unitary_term> 
 //%----Defined terms can't be formulae. See TFF. FIX HERE. 
 thf_system_atomic : system_constant;
@@ -225,7 +227,7 @@ thf_subtype : untyped_atom subtype_sign atom;
 //%----These are also used for NHF logic definitions 
 thf_definition : thf_atomic_formula identical thf_logic_formula;
 thf_sequent : thf_tuple gentzen_arrow thf_tuple;
-//%-------------------------------------------------------------------------------------------------- 
+//%----Top of Page----------------------------------------------------------------------------------- 
 //%----TFF formulae. 
 tff_formula : tff_logic_formula  |  tff_atom_typing  |  tff_subtype;
 tff_logic_formula : tff_unitary_formula  |  tff_unary_formula  |  tff_binary_formula  |  tff_defined_infix  |  txf_definition  |  txf_sequent;
@@ -248,7 +250,7 @@ tff_typed_variable : variable ':' tff_atomic_type;
 tff_unary_formula : tff_prefix_unary  |  tff_infix_unary;
 //%FOR PLAIN TFF <fof_infix_unary> 
 tff_prefix_unary : tff_unary_connective tff_preunit_formula;
-tff_infix_unary : '(' tff_unitary_term infix_inequality tff_unitary_term ')';
+tff_infix_unary : tff_unitary_term infix_inequality tff_unitary_term;
 //%FOR PLAIN TFF <tff_atomic_formula>   ::= <fof_atomic_formula> 
 tff_atomic_formula : tff_plain_atomic  |  tff_defined_atomic  |  tff_system_atomic;
 tff_plain_atomic : constant  |  functor'('tff_arguments')';
@@ -264,7 +266,7 @@ tff_defined_plain : defined_constant  |  defined_functor'('tff_arguments')'  |  
 //%----LHS/RHS is a formula that does not look like a term, then it must be ()ed 
 //%----per <tff_unitary_term>. If you put an un()ed formula that looks like a term 
 //%----it will be interpreted as a term. 
-tff_defined_infix : '(' tff_unitary_term defined_infix_pred tff_unitary_term ')';
+tff_defined_infix : tff_unitary_term defined_infix_pred tff_unitary_term;
 tff_system_atomic : system_constant  |  system_functor'('tff_arguments')';
 //<tff_system_atomic>    :== <system_proposition> | <system_predicate>(<tff_arguments>) 
 //%----<txf_conditional> is written and read as a <tff_defined_atomic> 
@@ -299,7 +301,7 @@ tff_subtype : untyped_atom subtype_sign atom;
 //%----These are also used for NXF logic definitions 
 txf_definition : tff_atomic_formula identical tff_term;
 txf_sequent : txf_tuple gentzen_arrow txf_tuple;
-//%-------------------------------------------------------------------------------------------------- 
+//%----Top of Page----------------------------------------------------------------------------------- 
 //%----Typed non-classical here 
 //%----Have to duplicate NHF and NXF because they lead to <thf_definition> and <txf_definition> 
 nhf_long_connective : '{'ntf_connective_name'}'  |  '{'ntf_connective_name'('nhf_parameter_list')}';
@@ -344,12 +346,12 @@ ntf_short_connective : '[.]'  |  Less_sign'.'Arrow  |  '{.}'  |  '(.)';
 //<ntf_time_type_list>   :== <ntf_time_type> | <ntf_time_type>,<ntf_time_type_list> 
 //<ntf_modal_system>     :== $modal_system_K | $modal_system_M | $modal_system_B | $modal_system_D | $modal_system_S4 | $modal_system_S5 
 //<ntf_modal_axiom>      :== $modal_axiom_K | $modal_axiom_M | $modal_axiom_B | $modal_axiom_D | $modal_axiom_4 | $modal_axiom_5 
-//%-------------------------------------------------------------------------------------------------- 
+//%----Top of Page----------------------------------------------------------------------------------- 
 //%----TCF formulae. 
 tcf_formula : tcf_logic_formula  |  tff_atom_typing;
 tcf_logic_formula : tcf_quantified_formula  |  cnf_formula;
 tcf_quantified_formula : '!' '['tff_variable_list']' ':' tcf_logic_formula;
-//%-------------------------------------------------------------------------------------------------- 
+//%----Top of Page----------------------------------------------------------------------------------- 
 //%----FOF formulae. 
 fof_formula : fof_logic_formula  |  fof_sequent;
 fof_logic_formula : fof_binary_formula  |  fof_unary_formula  |  fof_unitary_formula;
@@ -403,17 +405,17 @@ fof_arguments : fof_term  |  fof_term','fof_arguments;
 //%----<tff_atomic_formula>. 
 fof_term : fof_function_term  |  variable;
 fof_function_term : fof_plain_term  |  fof_defined_term  |  fof_system_term;
-//%-------------------------------------------------------------------------------------------------- 
+//%----Top of Page----------------------------------------------------------------------------------- 
 //%----This section is the FOFX syntax. Not yet in use. 
 fof_sequent : fof_formula_tuple gentzen_arrow fof_formula_tuple  |  '('fof_sequent')';
 fof_formula_tuple : '[]'  |  '['fof_formula_tuple_list']';
 fof_formula_tuple_list : fof_logic_formula  |  fof_logic_formula','fof_formula_tuple_list;
-//%-------------------------------------------------------------------------------------------------- 
+//%----Top of Page----------------------------------------------------------------------------------- 
 //%----CNF formulae (variables implicitly universally quantified) 
 cnf_formula : cnf_disjunction  |  '(' cnf_formula ')';
 cnf_disjunction : cnf_literal  |  cnf_disjunction Vline cnf_literal;
 cnf_literal : fof_atomic_formula  |  '~' fof_atomic_formula  |  '~' '('fof_atomic_formula')'  |  fof_infix_unary;
-//%-------------------------------------------------------------------------------------------------- 
+//%----Top of Page----------------------------------------------------------------------------------- 
 //%----Connectives - THF 
 thf_quantifier : fof_quantifier  |  th0_quantifier  |  th1_quantifier;
 thf_unary_connective : unary_connective  |  ntf_short_connective;
@@ -474,7 +476,7 @@ def_or_sys_constant : defined_constant  |  system_constant;
 th1_defined_term : '!!'  |  '??'  |  '@@+'  |  '@@-'  |  '@=';
 defined_term : number  |  Distinct_object;
 variable : Upper_word;
-//%-------------------------------------------------------------------------------------------------- 
+//%----Top of Page----------------------------------------------------------------------------------- 
 //%----Formula sources 
 source : general_term;
 //<source>               :== <dag_source> | <internal_source> | <external_source> | unknown | [<sources>] 
@@ -586,7 +588,7 @@ number : Integer  |  Rational  |  Real;
 //%----All numbers are base 10 at the moment. 
 file_name : Single_quoted;
 null : ;
-//%-------------------------------------------------------------------------------------------------- 
+//%----Top of Page----------------------------------------------------------------------------------- 
 //%----Rules from here on down are for defining tokens (terminal symbols) of the grammar, assuming 
 //%----they will be recognized by a lexical scanner. 
 //%----A ::- rule defines a token, a ::: rule defines a macro that is not a token. Usual regexp 
@@ -639,4 +641,4 @@ null : ;
 //%----<Printable_char> is any printable ASCII character, codes 32 (space) to 126 (tilde). 
 //%----<Printable_char> does not include tabs, newlines, bells, etc. The use of . does not not 
 //%----exclude tab, so this is a bit loose. 
-//%-------------------------------------------------------------------------------------------------- 
+//%----Top of Page-----------------------------------------------------------------------------------

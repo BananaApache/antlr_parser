@@ -44,7 +44,11 @@ tcf(equality,axiom,
     ! [X: $i,Y: $i,Z: $i] :
       ( 
         ( f(Y) = g(X,f(Y),Z) )
+
+
         | ( f(f(f(b))) != a )
+
+
         | ( X = f(Y) ) 
       ) 
     ).

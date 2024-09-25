@@ -288,7 +288,7 @@ def convert_character_classes(line):
     elif line.startswith("<do_char>"):
         return r"fragment Do_char : [\u0020-\u0021\u0023-\u005B\u005D-\u007E] | '\\'[" + '"\\\\];'
     elif line.startswith("<sq_char>"):
-        return r"fragment Sq_char : [\u0020-\u0026\u0028-\u005B\u005D-\u007E] | '\\'[" + '"\\\\];'
+        return r"fragment Sq_char : [\u0020-\u0026\u0028-\u005B\u005D-\u007E] | '\\\\' | '\\\'';"
     elif line.startswith("<sign>"):
         return r"fragment Sign : [+-];"
     elif line.startswith("<exponent>"):

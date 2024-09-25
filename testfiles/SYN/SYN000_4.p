@@ -53,7 +53,7 @@ tff(q2_type,type,
     q2: $o > $o ).
 
 tff(fool_2,axiom,
-    q2(( ~ p2(me) != q2($true) )) ).
+    q2(( (~ p2(me)) != q2($true) )) ).
 
 %----Tuples
 tff(tt_type,type,

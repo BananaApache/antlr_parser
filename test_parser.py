@@ -21,16 +21,24 @@ import os
     
 # print(output)
     
-    
+print("\nChoose which parser you want to test:\n1: original TPTP\n2: our TPTPv9\n")
+inp = input("(1 or 2): ")
     
 for file in os.listdir("testfiles/SYN/"):
     if file.startswith("SYN000"):
         testfile = f"testfiles/SYN/{file}"
+        # print("testing", file)
         
-        output = subprocess.check_output(f"cd JavaParser/g4; java org.antlr.v4.gui.TestRig TPTPv9 tptp_file ../../{testfile}; cd ../../", 
-                                        shell=True,
-                                        text=True,
-                                        stderr=subprocess.STDOUT)
+        if inp == "1":
+            output = subprocess.check_output(f"cd OriginalParser/g4; java org.antlr.v4.gui.TestRig TPTP tptp_file ../../{testfile}; cd ../../", 
+                                            shell=True,
+                                            text=True,
+                                            stderr=subprocess.STDOUT)
+        elif inp == "2":
+            output = subprocess.check_output(f"cd JavaParser/g4; java org.antlr.v4.gui.TestRig TPTPv9 tptp_file ../../{testfile}; cd ../../", 
+                                            shell=True,
+                                            text=True,
+                                            stderr=subprocess.STDOUT)
 
         hasError = False
         for line in output.split("\n"):
@@ -39,6 +47,6 @@ for file in os.listdir("testfiles/SYN/"):
                 print(F.RED + "PROBLEM IN " + file + F.RESET)
                 break
                         
-        if not hasError:
-            print(F.GREEN + "SUCCESS IN " + file + F.RESET)
+        # if not hasError:
+        #     print(F.GREEN + "SUCCESS IN " + file + F.RESET)
         
