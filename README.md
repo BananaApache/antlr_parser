@@ -17,7 +17,7 @@ https://matveevlife.wordpress.com/2024/06/09/antlr4-with-typescript/
  - **SYN000_6.p** and **SYN000^6.p** work with new TPTPv9 but not original TPTP, which is good**
  
  ### The problems that are throwing errors are in the following files:
-    - SYN000-3.p
+    - SYN000-3.p (FIXED)
 
         - mismatched input '|' expecting {')', '|'}
         - ( f(Y) = g(X,f(Y),Z) )  |  ( f(f(f(b))) != a )  |  ( X = f(Y) ) 
@@ -25,7 +25,7 @@ https://matveevlife.wordpress.com/2024/06/09/antlr4-with-typescript/
         -  f(Y) = g(X,f(Y),Z)   |   f(f(f(b))) != a  |   X = f(Y) 
         - 
 
-    - SYN000+1.p (MAYBE FIXED)
+    - SYN000+1.p (FIXED)
 
         -  no viable alternative at input
         - p('A \\'quoted \\ escape\'')

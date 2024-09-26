@@ -40,7 +40,7 @@ tcf(first_order_tcf,axiom,
       | ~ s(f(f(f(b)))) ) ).
 
 %----Equality
-tcf(equality,axiom,
+tff(equality,axiom,
     ! [X: $i,Y: $i,Z: $i] :
       ( 
         ( f(Y) = g(X,f(Y),Z) )

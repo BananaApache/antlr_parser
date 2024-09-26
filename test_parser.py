@@ -25,7 +25,7 @@ print("\nChoose which parser you want to test:\n1: original TPTP\n2: our TPTPv9\
 inp = input("(1 or 2): ")
     
 for file in os.listdir("testfiles/SYN/"):
-    if file.startswith("SYN000"):
+    if file.startswith("SYN") and os.path.getsize(f"testfiles/SYN/{file}") < 4000000:
         testfile = f"testfiles/SYN/{file}"
         # print("testing", file)
         
@@ -47,6 +47,6 @@ for file in os.listdir("testfiles/SYN/"):
                 print(F.RED + "PROBLEM IN " + file + F.RESET)
                 break
                         
-        # if not hasError:
-        #     print(F.GREEN + "SUCCESS IN " + file + F.RESET)
+        if not hasError:
+            print(F.GREEN + "SUCCESS IN " + file + F.RESET)
         

@@ -13,7 +13,7 @@ grammar TPTP;
 // #INFO HERE COME THE LEXER RULES
 
 fragment Do_char : [\u0020-\u0021\u0023-\u005B\u005D-\u007E] | '\\'["\\];
-fragment Sq_char : [\u0020-\u0026\u0028-\u005B\u005D-\u007E] | '\\'['\\];
+fragment Sq_char : [\u0020-\u0026\u0028-\u005B\u005D-\u007E] | '\\'["\\];
 fragment Sign : [+-];
 fragment Exponent : [Ee];
 fragment Non_zero_numeric : [1-9];
