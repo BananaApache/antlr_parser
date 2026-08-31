@@ -66,11 +66,17 @@ Viewable_char : '.\n';
 
 
 //%-------------------------------------------------------------------------------------------------- 
-//% v9.3.1.1 - Damn, to make ITV work I have to allow <functor>(<thf_arguments>), but that's not for  
-//%            THF logic. Thus now it's ... 
-//%            <thf_fof_function>     ::= <defined_functor>(<thf_arguments>) |  
-//%                                       <system_functor>(<thf_arguments>) | 
-//%                                       <functor>(<thf_arguments>) 
+//% v9.3.0.1 - Removed fi_ roles, added datatype, codatatype, datatype_constructor, and 
+//%            codatatype_constructor. 
+//% v9.3.0.2 - Renamed <untyped_atom> to <typeable_atom> 
+//%          - Added <typeable_atom>        ::= <constant> | <Distinct_object> 
+//%                  <atomic_type>          ::= <typeable_atom> | <defined_constant> | <system_type> 
+//%          - Fixed <thf_subtype>          ::= <atomic_type> <subtype_sign> <atomic_type> 
+//%                  <tff_subtype>          ::= <atomic_type> <subtype_sign> <atomic_type> 
+//% v9.3.0.3 - Removed <theory>, which is now part of <internal_source> 
+//%          - Removed <creator_source>, because I can't recal what it was for 
+//% v9.3.0.4 - Put back <thf_fof_function> for only <defined_functor> and <system_functor>, so that  
+//%            things like $distinct() can be used in THF. That also needed <thf_arguments> 
 //%-------------------------------------------------------------------------------------------------- 
 //%----README ... this header provides important meta- and usage information 
 //%---- 
@@ -189,12 +195,11 @@ thf_conn_term : nonassoc_connective  |  assoc_connective  |  infix_equality  |  
 //%----Note that syntactically this allows (p @ =), but for = the first argument must be known to 
 //%----infer the type of =, so that's not allowed, i.e., only (= @ p). 
 thf_tuple : '[]'  |  '['thf_formula_list']';
-//%----Allows first-order functional style in THF for $words, e.g., $distinct. Damn, to make ITV 
-//%----work I have to allow <functor>(<thf_arguments>), but that's not for THF logic. 
-thf_fof_function : defined_functor'('thf_arguments')'  |  system_functor'('thf_arguments')'  |   functor'('thf_arguments')';
+//%----Allows first-order functional style in THF for $words, e.g., $distinct. 
+thf_fof_function : defined_functor'('thf_arguments')'  |  system_functor'('thf_arguments')';
 //%----Arguments recurse back up to formulae (this is the THF world here) 
 thf_arguments : thf_formula_list;
-thf_formula_list : thf_logic_formula comma_thf_logic_formula *;
+thf_formula_list : thf_logic_formula comma_thf_logic_formula'*';
 comma_thf_logic_formula : ','thf_logic_formula;
 //%----<thf_top_level_type> appears after ":", where a type is being specified 
 //%----for a term or variable. <thf_unitary_type> includes <thf_unitary_formula>, 
@@ -280,7 +285,7 @@ nxf_atom : nxf_long_connective '@' '('tff_arguments')';
 tff_term : tff_logic_formula  |  defined_term  |  txf_tuple;
 tff_unitary_term : tff_atomic_formula  |  defined_term  |  txf_tuple  |  variable  |  '('tff_logic_formula')';
 txf_tuple : '[]'  |  '['tff_arguments']';
-tff_arguments : tff_term comma_tff_term *;
+tff_arguments : tff_term comma_tff_term'*';
 comma_tff_term : ','tff_term;
 //%----<tff_atom_typing> can appear only at top level. 
 tff_atom_typing : typeable_atom ':' tff_top_level_type  |  '('tff_atom_typing')';
@@ -411,7 +416,7 @@ fof_function_term : fof_plain_term  |  fof_defined_term  |  fof_system_term;
 //%----This section is the FOFX syntax. Not yet in use. 
 fof_sequent : fof_formula_tuple gentzen_arrow fof_formula_tuple  |  '('fof_sequent')';
 fof_formula_tuple : '[]'  |  '['fof_formula_tuple_list']';
-fof_formula_tuple_list : fof_logic_formula comma_fof_logic_formula *;
+fof_formula_tuple_list : fof_logic_formula comma_fof_logic_formula'*';
 comma_fof_logic_formula : ','fof_logic_formula;
 //%----Top of Page----------------------------------------------------------------------------------- 
 //%----CNF formulae (variables implicitly universally quantified) 
@@ -507,7 +512,7 @@ file_info : ','name  |  nothing;
 //%----cases when a tautology is introduced as a leaf, e.g., for splitting, then use an 
 //%----<internal_source>. 
 parents : '[]'  |  '['parent_list']';
-parent_list : parent_info comma_parent_info *;
+parent_list : parent_info comma_parent_info'*';
 comma_parent_info : ','parent_info;
 parent_info : source parent_details;
 parent_details : ':'general_term  |  nothing;
@@ -571,7 +576,7 @@ general_function : atomic_word'('general_terms')';
 //<bound_type>           :== $thf(<thf_top_level_type>) | $tff(<tff_top_level_type>) 
 formula_data : '$thf('thf_formula')'  |  '$tff('tff_formula')'  |  '$fof('fof_formula')'  |  '$cnf('cnf_formula')'  |  '$fot('fof_term')';
 general_list : '[]'  |  '['general_terms']';
-general_terms : general_term comma_general_term *;
+general_terms : general_term comma_general_term'*';
 comma_general_term : ','general_term;
 //%----General purpose 
 //%----Integer names are expected to be unsigned, but lex stuff prevents this .. 
@@ -643,4 +648,4 @@ nothing : ;
 //%----<Printable_char> is any printable ASCII character, codes 32 (space) to 126 (tilde). 
 //%----<Printable_char> does not include tabs, newlines, bells, etc. The use of . does not not 
 //%----exclude tab, so this is a bit loose. 
-//%----Top of Page----------------------------------------------------------------------------------- 
+//%----Top of Page-----------------------------------------------------------------------------------

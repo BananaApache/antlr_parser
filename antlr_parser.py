@@ -28,12 +28,12 @@ def read_bnf_file(file_path):
 
 
 def write_antlr_file(antlr_lines):
-    file = open("g4/TPTPv9.g4", "w")
+    file = open("g4/TPTP.g4", "w")
     
     new_lines = []
     
     lexer_rules = r"""
-grammar TPTPv9;
+grammar TPTP;
 WS : [ \r\t\n]+ -> skip ;
 Comment_line : '%' ~[\r\n]* -> skip;
 Comment_block : '/*' .*? '*/' -> skip;
@@ -125,7 +125,6 @@ def convert_comment(line):
 
 
 # semantic rule is :==
-# IGNORE THESE RULES FOR NOW
 def convert_semantic_rule(line):
     
     line = line.replace("><", "> <")
@@ -152,8 +151,10 @@ def convert_semantic_rule(line):
         if char == ">" and after_line[index - 1].isalpha():
             isInAlligator = False
             
-        if not isInAlligator and char != "|" and char != ">" and char != " ":
+        if not isInAlligator and char != "|" and char != ">" and char != " " and char != "*":
             result_str += "'" + char + "'"
+        elif char == "*":
+            result_str += "*"
             
         elif isInAlligator and char != "<":
             result_str += char
@@ -213,8 +214,10 @@ def convert_grammar_rule(line, append_EOF=False):
         if char == ">" and after_line[index - 1].isalpha():
             isInAlligator = False
             
-        if not isInAlligator and char != "|" and char != ">" and char != " ":
+        if not isInAlligator and char != "|" and char != ">" and char != " " and char != "*":
             result_str += "'" + char + "'"
+        elif char == "*":
+            result_str += "*"
             
         elif isInAlligator and char != "<":
             result_str += char
@@ -353,11 +356,24 @@ def replace_capitals(lines):
     return [re.sub(pattern, replace_func, line) for line in lines]
 
 
+def get_all_semantic_rules(bnf_lines):
+    all_semantic_rules = []
+    
+    for line in bnf_lines:
+        if ":==" in line and not line.startswith("%"):
+            all_semantic_rules.append(line.split(":==")[0].strip())
+            
+    return all_semantic_rules
+
+
 def main():
-    bnf_lines = read_bnf_file("bnf/SyntaxBNF-v9.0.0.3")
+    bnf_lines = read_bnf_file("/Users/daniel/Documents/coding_stuff/antlr_parser/bnf/SyntaxBNF-v9.3.1.1")
     antlr_lines = []
     token_rules = []
     bnf_line = ""
+    
+    # all_semantic_rules = get_all_semantic_rules(bnf_lines)
+    all_semantic_rules = []
     
     # run a clean up
     bnf_lines = clean_up(bnf_lines)
@@ -373,11 +389,14 @@ def main():
         
         # grammar rule is ::=
         elif "::=" in bnf_lines[index]:
-            if grammar_count == 0:
-                bnf_line = convert_grammar_rule(bnf_lines[index], append_EOF=True)
+            if bnf_lines[index].split("::=")[0].strip() in all_semantic_rules:
+                bnf_line = convert_comment(bnf_lines[index])
             else:
-                bnf_line = convert_grammar_rule(bnf_lines[index])
-                
+                if grammar_count == 0:
+                    bnf_line = convert_grammar_rule(bnf_lines[index], append_EOF=True)
+                else:
+                    bnf_line = convert_grammar_rule(bnf_lines[index])
+                    
             grammar_count += 1
             antlr_lines.append(bnf_line)
             

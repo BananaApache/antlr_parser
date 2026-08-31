@@ -1,49 +1,49 @@
-grammar TPTP;
+grammar TPTPv9;
 WS : [ \r\t\n]+ -> skip ;
 Comment_line : '%' ~[\r\n]* -> skip;
 Comment_block : '/*' .*? '*/' -> skip;
 
 //# HERE ARE THE LEXER RULES
 
+///
+///
+///
+Not_star_slash : (~'*')* '**' ~('/' | '*')*;
 Single_quoted :  Single_quote   Sq_char   Sq_char * Single_quote ;
-Back_quoted :  Back_quote   Upper_word ;
 Distinct_object :  Double_quote   Do_char * Double_quote ;
 Dollar_word :  Dollar   Alpha_numeric *;
 Dollar_dollar_word :  Dollar   Dollar   Alpha_numeric *;
 Upper_word :  Upper_alpha   Alpha_numeric *;
 Lower_word :  Lower_alpha   Alpha_numeric *;
-Real : ( Signed_real | Unsigned_real );
-Signed_real :  Sign   Unsigned_real ;
-Unsigned_real : ( Decimal_fraction | Decimal_exponent );
-Decimal_exponent : ( Integer_digits | Decimal_fraction ) Exponent   Exp_integer ;
-Decimal_fraction :  Unsigned_integer   Dot   Integer_digits ;
-Exp_integer : ( Signed_exp_integer | Integer_digits );
-Signed_exp_integer :  Sign   Integer_digits ;
-Rational : ( Signed_rational | Unsigned_rational );
-Signed_rational :  Sign   Unsigned_rational ;
-Unsigned_rational :  Unsigned_integer   Slash   Positive_integer ;
-Integer : ( Signed_integer | Unsigned_integer );
-Signed_integer :  Sign   Unsigned_integer ;
-Unsigned_integer : ( Zero_numeric | Positive_integer );
-Positive_integer :  Non_zero_numeric   Numeric *;
-Integer_digits :  Numeric   Numeric *;
-Slash :  Slash_char ;
-Slosh :  Slosh_char ;
-Vline : [|];
-Star : [*];
+Vline : '|';
+Star : '*';
 Plus : '+';
 Arrow : '>';
 Less_sign : '<';
 Hash : '#';
-///
-///
-///
-Not_star_slash : (~'*')* '**' ~('/' | '*')*;
+Real : ( Signed_real | Unsigned_real );
+Signed_real :  Sign   Unsigned_real ;
+Unsigned_real : ( Decimal_fraction | Decimal_exponent );
+Rational : ( Signed_rational | Unsigned_rational );
+Signed_rational :  Sign   Unsigned_rational ;
+Unsigned_rational :  Decimal   Slash   Positive_decimal ;
+Integer : ( Signed_integer | Unsigned_integer );
+Signed_integer :  Sign   Unsigned_integer ;
+Unsigned_integer :  Decimal ;
+Decimal : ( Zero_numeric | Positive_decimal );
+Positive_decimal :  Non_zero_numeric   Numeric *;
+Decimal_exponent : ( Decimal | Decimal_fraction ) Exponent   Exp_integer ;
+Decimal_fraction :  Decimal   Dot_decimal ;
+Dot_decimal :  Dot   Numeric   Numeric *;
+Exp_integer : ( Signed_exp_integer | Unsigned_exp_integer );
+Signed_exp_integer :  Sign   Unsigned_exp_integer ;
+Unsigned_exp_integer :  Numeric   Numeric *;
+Slash :  Slash_char ;
+Slosh :  Slosh_char ;
 Percentage_sign : [%];
 Double_quote : ["];
 fragment Do_char : [\u0020-\u0021\u0023-\u005B\u005D-\u007E] | '\\'["\\];
 Single_quote : '\'';
-Back_quote : [`];
 fragment Sq_char : [\u0020-\u0026\u0028-\u005B\u005D-\u007E] | '\\\\' | '\\\'';
 fragment Sign : [+-];
 Dot : [.];
@@ -55,8 +55,6 @@ fragment Non_zero_numeric : [1-9];
 fragment Numeric : [0-9];
 fragment Lower_alpha : [a-z];
 fragment Upper_alpha : [A-Z];
-Underscore : [_];
-Alpha : ( Lower_alpha | Upper_alpha );
 fragment Alpha_numeric : Lower_alpha | Upper_alpha | Numeric | '_';
 Dollar : [$];
 Printable_char : .;
@@ -65,12 +63,18 @@ Viewable_char : '.\n';
 //# END THE LEXER RULES
 
 
-//%-------------------------------------------------------------------------------------------------- 
-//% v9.3.1.1 - Damn, to make ITV work I have to allow <functor>(<thf_arguments>), but that's not for  
-//%            THF logic. Thus now it's ... 
-//%            <thf_fof_function>     ::= <defined_functor>(<thf_arguments>) |  
-//%                                       <system_functor>(<thf_arguments>) | 
-//%                                       <functor>(<thf_arguments>) 
+//%----v9.0.0.0 (TPTP version.internal development number) 
+//%----v9.0.0.1 Added <tff_quantifier>. Added <Hash> (for epsilon terms) to <thf_quantifier> and 
+//%----         <tff_quantifier>. Changed <tff_quantified_formula> to use <tff_quantifier>. 
+//%----v9.0.0.2 Removed axiom_of_choce as an <intro_type> 
+//%----         Renamed <inference_parents> to <parents> 
+//%----         <inference_record>     :== inference(<inference_rule>,<useful_info>,<parents>) 
+//%----         Aligned introduced and creator with inferred 
+//%----         <internal_source>      :== introduced(<intro_type>,<useful_info>,<parents>) 
+//%----         <creator_source>       :== creator(<creator_name>,<useful_info>,<parents>) 
+//%----v9.0.0.3 Moved <Hash> to <fof_quantifier> so it's available in all languages. 
+//%----v9.0.0.4 Removed ()s around <thf_defined_infix> and <thf_infix_unary> HELP, DOES THAT BREAK ANYTHING? 
+//%----v9.0.0.4 Removed ()s around <tff_defined_infix> and <tff_infix_unary> HELP, DOES THAT BREAK ANYTHING? 
 //%-------------------------------------------------------------------------------------------------- 
 //%----README ... this header provides important meta- and usage information 
 //%---- 
@@ -110,7 +114,7 @@ tff_annotated : 'tff('name','formula_role','tff_formula annotations').';
 tcf_annotated : 'tcf('name','formula_role','tcf_formula annotations').';
 fof_annotated : 'fof('name','formula_role','fof_formula annotations').';
 cnf_annotated : 'cnf('name','formula_role','cnf_formula annotations').';
-annotations : ','source optional_info  |  nothing;
+annotations : ','source optional_info  |  null;
 //%----In derivations the annotated formulae names must be unique, so that parent references (see 
 //%----<inference_record>) are unambiguous. 
 //%----Types for problems. 
@@ -118,7 +122,7 @@ annotations : ','source optional_info  |  nothing;
 //%----   <formula_role> ::= <user_role>-<source> 
 //%----... is now gone. Parsers may choose to be tolerant of it for backwards compatibility. 
 formula_role : Lower_word  |  Lower_word'-'general_term;
-//<formula_role>         :== axiom | hypothesis | definition | assumption | lemma | theorem | corollary | conjecture | negated_conjecture | plain | type | interpretation | unknown 
+//<formula_role>         :== axiom | hypothesis | definition | assumption | lemma | theorem | corollary | conjecture | negated_conjecture | plain | type | interpretation | fi_domain | fi_functors | fi_predicates | unknown 
 //%----"axiom"s are accepted, without proof. There is no guarantee that the axioms of a problem are 
 //%----consistent. "hypothesis"s are assumed to be true for a particular problem, and are used like 
 //%----"axiom"s. "definition"s are intended to define symbols. They are either universally quantified 
@@ -131,10 +135,10 @@ formula_role : Lower_word  |  Lower_word'-'general_term;
 //%----"axiom"(-like) formulae. A problem is solved only when all "conjecture"s are proven. 
 //%----"negated_conjecture"s are formed from negation of a "conjecture" (usually in a FOF to CNF 
 //%----conversion). "plain"s have no specified user semantics. "interpretation"s record all aspects 
-//%----of an interpretation. "type"s defines the type globally for one symbol. unknown"s have unknown 
-//%----role, and this is an error situation. The <general_term> subroles are used in various ways, 
-//%----including but not limited to: "domains" and "mappings" for "interpretation"s; "datatype",  
-//%----"codatatype", "datatype_constructor", and "codatatype_constructor" for "type"s. 
+//%----of an interpretation. "fi_domain", "fi_functors", and "fi_predicates" are are thge old way of 
+//%----recording the domain, interpretation of functors, and interpretation of predicates, for a 
+//%----finite interpretation. "type" defines the type globally for one symbol; treat as $true. 
+//%----"unknown"s have unknown role, and this is an error situation. 
 //%----Top of Page----------------------------------------------------------------------------------- 
 //%----THF formulae. 
 thf_formula : thf_logic_formula  |  thf_atom_typing  |  thf_subtype;
@@ -145,7 +149,7 @@ thf_binary_nonassoc : thf_unit_formula nonassoc_connective thf_unit_formula;
 thf_binary_assoc : thf_or_formula  |  thf_and_formula  |  thf_apply_formula;
 thf_or_formula : thf_unit_formula Vline thf_unit_formula  |  thf_or_formula Vline thf_unit_formula;
 thf_and_formula : thf_unit_formula '&' thf_unit_formula  |  thf_and_formula '&' thf_unit_formula;
-//%----@ for THF applicative style is left-associative and lambda is right-associative. 
+//%----@ (denoting apply) is left-associative and lambda is right-associative. 
 //%----^ [X] : ^ [Y] : f @ g (where f is a <thf_apply_formula> and g is a <thf_unitary_formula>) 
 //%----should be parsed as: (^ [X] : (^ [Y] : f)) @ g. That is, g is not in the scope of either 
 //%----lambda. 
@@ -163,7 +167,8 @@ thf_prefix_unary : thf_unary_connective thf_preunit_formula;
 thf_infix_unary : thf_unitary_term infix_inequality thf_unitary_term;
 thf_atomic_formula : thf_plain_atomic  |  thf_defined_atomic  |  thf_system_atomic  |  thf_fof_function;
 thf_plain_atomic : constant  |  thf_tuple;
-//%----<thf_plain_atomic> includes <thf_tuple> because tuples can be formulae in logic definitions 
+//%----<thf_plain_atomic> includes <thf_tuple> because tuples can be formulae 
+//%----in logic definitions 
 thf_defined_atomic : defined_constant  |  thf_defined_term  |  '('thf_conn_term')'  |  nhf_long_connective  |  thf_let;
 //% <thf_conditional> 
 //%----<thf_conditional> is omitted from <thf_defined_atomic> because $ite is 
@@ -189,19 +194,17 @@ thf_conn_term : nonassoc_connective  |  assoc_connective  |  infix_equality  |  
 //%----Note that syntactically this allows (p @ =), but for = the first argument must be known to 
 //%----infer the type of =, so that's not allowed, i.e., only (= @ p). 
 thf_tuple : '[]'  |  '['thf_formula_list']';
-//%----Allows first-order functional style in THF for $words, e.g., $distinct. Damn, to make ITV 
-//%----work I have to allow <functor>(<thf_arguments>), but that's not for THF logic. 
-thf_fof_function : defined_functor'('thf_arguments')'  |  system_functor'('thf_arguments')'  |   functor'('thf_arguments')';
+//%----Allows first-order style in THF. 
+thf_fof_function : functor'('thf_arguments')'  |  defined_functor'('thf_arguments')'  |  system_functor'('thf_arguments')';
 //%----Arguments recurse back up to formulae (this is the THF world here) 
 thf_arguments : thf_formula_list;
-thf_formula_list : thf_logic_formula comma_thf_logic_formula *;
-comma_thf_logic_formula : ','thf_logic_formula;
+thf_formula_list : thf_logic_formula  |  thf_logic_formula','thf_formula_list;
 //%----<thf_top_level_type> appears after ":", where a type is being specified 
 //%----for a term or variable. <thf_unitary_type> includes <thf_unitary_formula>, 
 //%----so the syntax is very loose, but trying to be more specific about 
 //%----<thf_unitary_type>s (ala the semantic rule) leads to reduce/reduce 
 //%----conflicts. 
-thf_atom_typing : typeable_atom ':' thf_top_level_type  |  '('thf_atom_typing')';
+thf_atom_typing : untyped_atom ':' thf_top_level_type  |  '('thf_atom_typing')';
 thf_top_level_type : thf_unitary_type  |  thf_mapping_type  |  thf_apply_type;
 //%----Removed along with adding <thf_binary_type> to <thf_binary_formula>, for 
 //%----TH1 polymorphic types with binary after quantification. 
@@ -209,19 +212,18 @@ thf_top_level_type : thf_unitary_type  |  thf_mapping_type  |  thf_apply_type;
 thf_unitary_type : thf_unitary_formula;
 //<thf_unitary_type>     :== <thf_atomic_type> | <th1_quantified_type> 
 //<thf_atomic_type>      :== <type_constant> | <defined_type> | <variable> | <thf_mapping_type> | (<thf_atomic_type>) 
-//<th1_quantified_type>  :== <type_quantifier> [<thf_variable_list>] : <thf_unitary_type> 
+//<th1_quantified_type>  :== !> [<thf_variable_list>] : <thf_unitary_type> 
 thf_apply_type : thf_apply_formula;
 thf_binary_type : thf_mapping_type  |  thf_xprod_type  |  thf_union_type;
 //%----Mapping is right-associative: o > o > o means o > (o > o). 
 thf_mapping_type : thf_unitary_type Arrow thf_unitary_type  |  thf_unitary_type Arrow thf_mapping_type;
-//%----Xproduct is left-associative: o * o * o means (o * o) * o. Xproduct can be replaced by tuple 
-//%----types. 
+//%----Xproduct is left-associative: o * o * o means (o * o) * o. Xproduct 
+//%----can be replaced by tuple types. 
 thf_xprod_type : thf_unitary_type Star thf_unitary_type  |  thf_xprod_type Star thf_unitary_type;
 //%----Union is left-associative: o + o + o means (o + o) + o. 
 thf_union_type : thf_unitary_type Plus thf_unitary_type  |  thf_union_type Plus thf_unitary_type;
 //%----Tuple types, e.g., [a,b,c], are allowed (by the loose syntax) as tuples. 
-//%----Subtypes are not approved by the whiny community 
-thf_subtype : atomic_type subtype_sign atomic_type;
+thf_subtype : untyped_atom subtype_sign atom;
 //%----These are also used for NHF logic definitions 
 thf_definition : thf_atomic_formula identical thf_logic_formula;
 thf_sequent : thf_tuple gentzen_arrow thf_tuple;
@@ -280,13 +282,12 @@ nxf_atom : nxf_long_connective '@' '('tff_arguments')';
 tff_term : tff_logic_formula  |  defined_term  |  txf_tuple;
 tff_unitary_term : tff_atomic_formula  |  defined_term  |  txf_tuple  |  variable  |  '('tff_logic_formula')';
 txf_tuple : '[]'  |  '['tff_arguments']';
-tff_arguments : tff_term comma_tff_term *;
-comma_tff_term : ','tff_term;
+tff_arguments : tff_term  |  tff_term','tff_arguments;
 //%----<tff_atom_typing> can appear only at top level. 
-tff_atom_typing : typeable_atom ':' tff_top_level_type  |  '('tff_atom_typing')';
+tff_atom_typing : untyped_atom ':' tff_top_level_type  |  '('tff_atom_typing')';
 tff_top_level_type : tff_atomic_type  |  tff_non_atomic_type;
 tff_non_atomic_type : tff_mapping_type  |  tf1_quantified_type  |  '('tff_non_atomic_type')';
-tf1_quantified_type : type_quantifier '['tff_variable_list']' ':' tff_monotype;
+tf1_quantified_type : '!>' '['tff_variable_list']' ':' tff_monotype;
 tff_monotype : tff_atomic_type  |  '('tff_mapping_type')'  |  tf1_quantified_type;
 tff_unitary_type : tff_atomic_type  |  '('tff_xprod_type')';
 tff_atomic_type : type_constant  |  defined_type  |  variable  |  type_functor'('tff_type_arguments')'  |  '('tff_atomic_type')'  |  txf_tuple_type;
@@ -296,8 +297,7 @@ tff_xprod_type : tff_unitary_type Star tff_atomic_type  |  tff_xprod_type Star t
 //%----For TXF only 
 txf_tuple_type : '['tff_type_list']';
 tff_type_list : tff_top_level_type  |  tff_top_level_type','tff_type_list;
-//%----Subtypes are not approved by the whiny community 
-tff_subtype : atomic_type subtype_sign atomic_type;
+tff_subtype : untyped_atom subtype_sign atom;
 //%----These are also used for NXF logic definitions 
 txf_definition : tff_atomic_formula identical tff_term;
 txf_sequent : txf_tuple gentzen_arrow txf_tuple;
@@ -312,9 +312,7 @@ nxf_long_connective : '{'ntf_connective_name'}'  |  '{'ntf_connective_name'('nxf
 nxf_parameter_list : nxf_parameter  |  nxf_parameter','nxf_parameter_list;
 nxf_parameter : ntf_index  |  nxf_key_pair;
 nxf_key_pair : txf_definition;
-ntf_connective_name : ntf_defined_connective  |  atomic_system_word;
-ntf_defined_connective : atomic_defined_word;
-//<ntf_connective_name>  :== $box | $dia | {$necessary} | {$possible} | {$obligatory} | {$permissible} | {$knows} | {$canKnow} | {$believes} | {$canBelieve} 
+ntf_connective_name : def_or_sys_constant;
 ntf_index : Hash tff_unitary_term;
 ntf_short_connective : '[.]'  |  Less_sign'.'Arrow  |  '{.}'  |  '(.)';
 //%----Short connectives are unary operators, cannot be indexed 
@@ -328,8 +326,8 @@ ntf_short_connective : '[.]'  |  Less_sign'.'Arrow  |  '{.}'  |  '(.)';
 //<ntf_logic_spec>       :== <ntf_domains_spec> | <ntf_designation_spec> | <ntf_terms_spec> | <ntf_modalities_spec> | <ntf_time_spec> 
 //<ntf_domains_spec>     :== $domains <identical> <ntf_domains_value> 
 //<ntf_domains_value>    :== <ntf_domain_type> | [<ntf_domain_type_list>] 
-//<ntf_domain_type>      :== $constant | $varying | $cumulative | $decreasing | <tff_atomic_type> <identical> <ntf_domains_value> 
-//<ntf_domain_type_list> :== <ntf_domain_type> | <ntf_domain_type>,<ntf_domain_type_list> 
+//<ntf_domains_type>     :== $constant | $varying | $cumulative | $decreasing | <tff_atomic_type> <identical> <ntf_domains_value> 
+//<ntf_domains_type_list> :== <ntf_domain_type> | <ntf_domain_type>,<ntf_domain_type_list> 
 //<ntf_designation_spec> :== $designation <identical> <ntf_designation_value> 
 //<ntf_designation_value>    :== <ntf_designation_type> | [<ntf_designation_type_list>] 
 //<ntf_designation_type> :== $rigid | $flexible | <tff_atomic_type> <identical> <ntf_designation_value> 
@@ -411,8 +409,7 @@ fof_function_term : fof_plain_term  |  fof_defined_term  |  fof_system_term;
 //%----This section is the FOFX syntax. Not yet in use. 
 fof_sequent : fof_formula_tuple gentzen_arrow fof_formula_tuple  |  '('fof_sequent')';
 fof_formula_tuple : '[]'  |  '['fof_formula_tuple_list']';
-fof_formula_tuple_list : fof_logic_formula comma_fof_logic_formula *;
-comma_fof_logic_formula : ','fof_logic_formula;
+fof_formula_tuple_list : fof_logic_formula  |  fof_logic_formula','fof_formula_tuple_list;
 //%----Top of Page----------------------------------------------------------------------------------- 
 //%----CNF formulae (variables implicitly universally quantified) 
 cnf_formula : cnf_disjunction  |  '(' cnf_formula ')';
@@ -420,18 +417,18 @@ cnf_disjunction : cnf_literal  |  cnf_disjunction Vline cnf_literal;
 cnf_literal : fof_atomic_formula  |  '~' fof_atomic_formula  |  '~' '('fof_atomic_formula')'  |  fof_infix_unary;
 //%----Top of Page----------------------------------------------------------------------------------- 
 //%----Connectives - THF 
-thf_quantifier : tff_quantifier  |  th0_quantifier  |  type_quantifier;
+thf_quantifier : fof_quantifier  |  th0_quantifier  |  th1_quantifier;
 thf_unary_connective : unary_connective  |  ntf_short_connective;
 //%----TH0 quantifiers are also available in TH1 
+th1_quantifier : '!>'  |  '?*';
 th0_quantifier : '^'  |  '@+'  |  '@-';
 //%----Connectives - THF and TFF 
-type_quantifier : '!>'  |  '?*';
 subtype_sign : '<<';
 //%----Connectives - TFF 
 tff_unary_connective : unary_connective  |  ntf_short_connective;
-tff_quantifier : fof_quantifier  |  Hash;
+tff_quantifier : fof_quantifier;
 //%----Connectives - FOF 
-fof_quantifier : '!'  |  '?';
+fof_quantifier : '!'  |  '?'  |  Hash;
 nonassoc_connective : '<=>'  |  '=>'  |  '<='  |  '<~>'  |  '~'Vline  |  '~&';
 assoc_connective : Vline  |  '&';
 unary_connective : '~';
@@ -439,15 +436,6 @@ unary_connective : '~';
 gentzen_arrow : '-->';
 assignment : ':=';
 identical : '==';
-//%----Types for all language types 
-typeable_atom : constant  |  Distinct_object;
-atomic_type : typeable_atom  |  defined_constant  |  system_type;
-//%----I wish I could use ... 
-//<atomic_type>          :== <type_constant> | <defined_type> | <system_type> 
-//%----... but that gives reduce conflicts because ... 
-//%----<type_constant> expands to <atomic_word>, but happily so does <constant> 
-//%----<defined_type>  expands to <atomic_defined_word>, but happily so does <defined_constant> 
-//%----Allowing <Distinct_object> as an <atomic_type> is plain wrong. 
 //%----Types for THF and TFF 
 type_constant : type_functor;
 type_functor : atomic_word;
@@ -458,16 +446,20 @@ defined_type : atomic_defined_word;
 //%----infinite. $tType is the type of all types. $Real is the type of <Real>s. 
 //%----$rat is the type of <Rational>s. $int is the type of <Signed_integer>s 
 //%----and <Unsigned_integer>s. 
-system_type : atomic_system_word;
+//<system_type>          :== <atomic_system_word> 
+//%----For all language types 
+atom : untyped_atom  |  defined_constant;
+untyped_atom : constant  |  system_constant;
 //<proposition>          :== <predicate> 
 //<predicate>            :== <atomic_word> 
 //<defined_proposition>  :== <defined_predicate> 
 //<defined_proposition>  :== $true | $false 
 //<defined_predicate>    :== <atomic_defined_word> 
-//<defined_predicate>    :== $distinct | $less | $lesseq | $greater | $greatereq | $is_int | $is_rat 
-//%----$distinct is part of the TXF and THF languages. $distinct is always written in functional  
-//%----form, even in THF. It takes one or more terms of the same type as arguments, and indicates  
-//%----that the arguments are pairwise !=. 
+//<defined_predicate>    :== $distinct | $less | $lesseq | $greater | $greatereq | $is_int | $is_rat | $box | $dia 
+//%----$distinct is part of the TFF, TXF, THF, NXF, and NHF syntax. $distinct takes one or more 
+//%----constants of the same type as arguments, and indicates that the arguments are pairwise !=. 
+//%----$distinct can be used only as a fact in an axiom-like annotated formula (e.g., not in a 
+//%----conjecture), and not under any connective. 
 defined_infix_pred : infix_equality;
 //<system_proposition>   :== <system_predicate> 
 //<system_predicate>     :== <atomic_system_word> 
@@ -480,13 +472,14 @@ defined_functor : atomic_defined_word;
 //<defined_functor>      :== $uminus | $sum | $difference | $product | $quotient | $quotient_e | $quotient_t | $quotient_f | $remainder_e | $remainder_t | $remainder_f | $floor | $ceiling | $truncate | $round | $to_int | $to_rat | $to_real 
 system_constant : system_functor;
 system_functor : atomic_system_word;
+def_or_sys_constant : defined_constant  |  system_constant;
 th1_defined_term : '!!'  |  '??'  |  '@@+'  |  '@@-'  |  '@=';
 defined_term : number  |  Distinct_object;
 variable : Upper_word;
 //%----Top of Page----------------------------------------------------------------------------------- 
 //%----Formula sources 
-//%----Expanded semantic rules for IDV. It was <source>               ::= <general_term> 
-source : dag_source  |  internal_source  |  external_source  |  'unknown'  |  '['sources']';
+//%-<source>               ::= <general_term> 
+source : dag_source  |  internal_source  |  external_source  |  '['sources']';
 //%----Alternative sources are recorded like this, thus allowing representation 
 //%----of alternative derivations with shared parts. 
 sources : source  |  source','sources;
@@ -498,25 +491,33 @@ inference_rule : atomic_word;
 //%----Examples are          deduction | modus_tollens | modus_ponens | rewrite | resolution | 
 //%----                      paramodulation | factorization | cnf_conversion | cnf_refutation | ... 
 internal_source : 'introduced('intro_type','useful_info','parents')';
+//<intro_type>           :== definition | tautology | assumption 
 intro_type : atomic_word;
-//<intro_type>           :== definition | tautology | assumption | theory 
+//%----This should be used to record the symbol being defined, or the function 
+//%----for the axiom of choice 
+//% ORIGINAL : <external_source>      ::= <file_source> | <theory> | <creator_source> 
 external_source : file_source;
 file_source : 'file('file_name file_info')';
-file_info : ','name  |  nothing;
-//%----<parents> can be empty in cases when there is a justification for a tautologous theorem. In 
-//%----cases when a tautology is introduced as a leaf, e.g., for splitting, then use an 
+file_info : ','name  |  null;
+//<theory>               :== theory(<theory_name> <optional_info>) 
+//<theory_name>          :== equality | ac 
+//%----More theory names may be added in the future. The <optional_info> is 
+//%----used to store, e.g., which axioms of equality have been implicitly used, 
+//%----e.g., theory(equality,[rst]). Standard format still to be decided. 
+//<creator_source>       :== creator(<creator_name>,<useful_info>,<parents>) 
+//<creator_name>         :== <atomic_word> 
+//%----<parents> can be empty in cases when there is a justification for a tautologous theorem. In  
+//%----cases when a tautology is introduced as a leaf, e.g., for splitting, then use an  
 //%----<internal_source>. 
 parents : '[]'  |  '['parent_list']';
-parent_list : parent_info comma_parent_info *;
-comma_parent_info : ','parent_info;
+parent_list : parent_info  |  parent_info','parent_list;
 parent_info : source parent_details;
-parent_details : ':'general_term  |  nothing;
+parent_details : ':'general_list  |  null;
 //%----Useful info fields 
-optional_info : ','useful_info  |  nothing;
+optional_info : ','useful_info  |  null;
 useful_info : general_list;
 //<useful_info>          :== [] | [<info_items>] 
-//<info_items>           :== <info_item> <comma_info_item>* 
-//<comma_info_item>      :== ,<info_item> 
+//<info_items>           :== <info_item> | <info_item>,<info_items> 
 //<info_item>            :== <formula_item> | <inference_item> | <general_function> 
 //%----Useful info for formula records 
 //<formula_item>         :== <description_item> | <iquote_item> 
@@ -557,7 +558,7 @@ useful_info : general_list;
 //<principal_symbol>     :== <functor> | <variable> 
 //%----Include directives 
 include : 'include('file_name include_optionals').';
-include_optionals : nothing  |  ','formula_selection  |  ','formula_selection','space_name;
+include_optionals : null  |  ','formula_selection  |  ','formula_selection','space_name;
 formula_selection : '['name_list']'  |  Star;
 name_list : name  |  name','name_list;
 space_name : name;
@@ -571,13 +572,11 @@ general_function : atomic_word'('general_terms')';
 //<bound_type>           :== $thf(<thf_top_level_type>) | $tff(<tff_top_level_type>) 
 formula_data : '$thf('thf_formula')'  |  '$tff('tff_formula')'  |  '$fof('fof_formula')'  |  '$cnf('cnf_formula')'  |  '$fot('fof_term')';
 general_list : '[]'  |  '['general_terms']';
-general_terms : general_term comma_general_term *;
-comma_general_term : ','general_term;
+general_terms : general_term  |  general_term','general_terms;
 //%----General purpose 
-//%----Integer names are expected to be unsigned, but lex stuff prevents this .. 
-//%----<name>                 ::= <atomic_word> | <Unsigned_integer> 
 name : atomic_word  |  Integer;
-atomic_word : Lower_word  |  Single_quoted  |  Back_quoted;
+//%----Integer names are expected to be unsigned 
+atomic_word : Lower_word  |  Single_quoted;
 //%----<Single_quoted>s are the enclosed <atomic_word> without the quotes. Therefore the <Lower_word> 
 //%----<atomic_word> cat and the <Single_quoted> <atomic_word> 'cat' are the same, but <numbers>s and 
 //%----<variable>s are not <Lower_word>s, so 123' and 123, and 'X' and X, are different. Quotes can 
@@ -590,7 +589,7 @@ number : Integer  |  Rational  |  Real;
 //%----distinct if they have different values, e.g., 1 != 2 is an implicit axiom. 
 //%----All numbers are base 10 at the moment. 
 file_name : atomic_word;
-nothing : ;
+null : ;
 //%----Top of Page----------------------------------------------------------------------------------- 
 //%----Rules from here on down are for defining tokens (terminal symbols) of the grammar, assuming 
 //%----they will be recognized by a lexical scanner. 
@@ -598,23 +597,12 @@ nothing : ;
 //%----notation is used. Single characters are always placed in []s to disable any special meanings 
 //%----(for uniformity this is done to all characters, not only those with special meanings). 
 //%----These are tokens that appear in the syntax rules above. No rules defined here because they 
-//%----appear explicitly in the syntax rules, except that <Vline>, <Star>, <Plus>, <Hash> denote 
-//%----"|", "*", "+", "#", respectively. 
-//%----Keywords:    thf tff fof cnf include 
+//%----appear explicitly in the syntax rules, except that <Vline>, <Star>, <Plus> denote "|", "*", 
+//%----"+", respectively. 
+//%----Keywords:    fof cnf thf tff include 
 //%----Punctuation: ( ) , . [ ] : 
 //%----Operators:   ! ? ~ & | <=> => <= <~> ~| ~& * + 
-//%----Predicates:  = != $true $false $arithmetic_stuff 
-//%----<Single_quoted>s contain visible characters. \ is the escape character for ' and \, i.e., 
-//%----\' is not the end of the <Single_quoted>. The token does not include the outer quotes, e.g., 
-//%----'cat' and cat are the same. See <atomic_word> for information about stripping the quotes. 
-//%---Space and visible characters upto ~, except " and \ Distinct_object>s contain visible 
-//%----characters. \ is the escape character for " and \, i.e., \" is not the end of the 
-//%----<Distinct_object>. <Distinct_object>s are different from (but may be equal to) other tokens, 
-//%----e.g., "cat" is different from 'cat' and cat. Distinct objects are always interpreted as 
-//%----themselves, so if they are different they are unequal, e.g., "Apple" != "Microsoft" is 
-//%----implicit. 
-//%----Numbers. Note only the <Real>, <Rational>, and <Integer> are accessible. 
-//%----Tokens used in syntax, and cannot be character classes 
+//%----Predicates:  = != $true $false 
 //%----For lex/yacc there cannot be spaces on either side of the | here 
 //%----Defined comments are a convention used for annotations that are used as additional input for 
 //%----systems. They look like comments, but start with %$ or /*$. A wily user of the syntax can 
@@ -638,9 +626,21 @@ nothing : ;
 //%----  <sys_comment_block>  ::: [/][*]<Dollar> <Dollar> <Not_star_slash>[*][*]*[/] 
 //%----A string that matches both <system_comment> and <defined_comment> should 
 //%----be recognized as <system_comment>, so put these before <defined_comment>. 
+//%----<Single_quoted>s contain visible characters. \ is the escape character for ' and \, i.e., 
+//%----\' is not the end of the <Single_quoted>. The token does not include the outer quotes, e.g., 
+//%----'cat' and cat are the same. See <atomic_word> for information about stripping the quotes. 
+//%---Space and visible characters upto ~, except " and \ Distinct_object>s contain visible 
+//%----characters. \ is the escape character for " and \, i.e., \" is not the end of the 
+//%----<Distinct_object>. <Distinct_object>s are different from (but may be equal to) other tokens, 
+//%----e.g., "cat" is different from 'cat' and cat. Distinct objects are always interpreted as 
+//%----themselves, so if they are different they are unequal, e.g., "Apple" != "Microsoft" is 
+//%----implicit. 
+//%----Tokens used in syntax, and cannot be character classes 
+//%----Numbers. Signs are made part of the same token here. 
 //%----Character classes 
 //%---Space and visible characters upto ~, except ' and \ 
+//%% <bar>                  ::: [|] 
 //%----<Printable_char> is any printable ASCII character, codes 32 (space) to 126 (tilde). 
 //%----<Printable_char> does not include tabs, newlines, bells, etc. The use of . does not not 
 //%----exclude tab, so this is a bit loose. 
-//%----Top of Page----------------------------------------------------------------------------------- 
+//%----Top of Page-----------------------------------------------------------------------------------

@@ -24,8 +24,9 @@ import os
 print("\nChoose which parser you want to test:\n1: original TPTP\n2: our TPTPv9\n")
 inp = input("(1 or 2): ")
     
-for file in os.listdir("testfiles/PUZ/"):
-    if file.startswith("PUZ"):
+for file in os.listdir("testfiles/SYN/"):
+    if file.startswith("SYN") and os.path.getsize(f"testfiles/SYN/{file}") < 300000:
+        print("testing", file, "of size", os.path.getsize(f"testfiles/SYN/{file}"))
         testfile = f"testfiles/SYN/{file}"
         # print("testing", file)
         
