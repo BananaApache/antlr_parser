@@ -194,7 +194,7 @@ thf_tuple : '[]'  |  '['thf_formula_list']';
 thf_fof_function : defined_functor'('thf_arguments')'  |  system_functor'('thf_arguments')'  |   functor'('thf_arguments')';
 //%----Arguments recurse back up to formulae (this is the THF world here) 
 thf_arguments : thf_formula_list;
-thf_formula_list : thf_logic_formula comma_thf_logic_formula *;
+thf_formula_list : thf_logic_formula comma_thf_logic_formula*;
 comma_thf_logic_formula : ','thf_logic_formula;
 //%----<thf_top_level_type> appears after ":", where a type is being specified 
 //%----for a term or variable. <thf_unitary_type> includes <thf_unitary_formula>, 
@@ -280,7 +280,7 @@ nxf_atom : nxf_long_connective '@' '('tff_arguments')';
 tff_term : tff_logic_formula  |  defined_term  |  txf_tuple;
 tff_unitary_term : tff_atomic_formula  |  defined_term  |  txf_tuple  |  variable  |  '('tff_logic_formula')';
 txf_tuple : '[]'  |  '['tff_arguments']';
-tff_arguments : tff_term comma_tff_term *;
+tff_arguments : tff_term comma_tff_term*;
 comma_tff_term : ','tff_term;
 //%----<tff_atom_typing> can appear only at top level. 
 tff_atom_typing : typeable_atom ':' tff_top_level_type  |  '('tff_atom_typing')';
@@ -411,7 +411,7 @@ fof_function_term : fof_plain_term  |  fof_defined_term  |  fof_system_term;
 //%----This section is the FOFX syntax. Not yet in use. 
 fof_sequent : fof_formula_tuple gentzen_arrow fof_formula_tuple  |  '('fof_sequent')';
 fof_formula_tuple : '[]'  |  '['fof_formula_tuple_list']';
-fof_formula_tuple_list : fof_logic_formula comma_fof_logic_formula *;
+fof_formula_tuple_list : fof_logic_formula comma_fof_logic_formula*;
 comma_fof_logic_formula : ','fof_logic_formula;
 //%----Top of Page----------------------------------------------------------------------------------- 
 //%----CNF formulae (variables implicitly universally quantified) 
@@ -425,7 +425,7 @@ thf_unary_connective : unary_connective  |  ntf_short_connective;
 //%----TH0 quantifiers are also available in TH1 
 th0_quantifier : '^'  |  '@+'  |  '@-';
 //%----Connectives - THF and TFF 
-type_quantifier : '!>'  |  '?*';
+type_quantifier : '!>'  |  '?'*;
 subtype_sign : '<<';
 //%----Connectives - TFF 
 tff_unary_connective : unary_connective  |  ntf_short_connective;
@@ -507,7 +507,7 @@ file_info : ','name  |  nothing;
 //%----cases when a tautology is introduced as a leaf, e.g., for splitting, then use an 
 //%----<internal_source>. 
 parents : '[]'  |  '['parent_list']';
-parent_list : parent_info comma_parent_info *;
+parent_list : parent_info comma_parent_info*;
 comma_parent_info : ','parent_info;
 parent_info : source parent_details;
 parent_details : ':'general_term  |  nothing;
@@ -571,7 +571,7 @@ general_function : atomic_word'('general_terms')';
 //<bound_type>           :== $thf(<thf_top_level_type>) | $tff(<tff_top_level_type>) 
 formula_data : '$thf('thf_formula')'  |  '$tff('tff_formula')'  |  '$fof('fof_formula')'  |  '$cnf('cnf_formula')'  |  '$fot('fof_term')';
 general_list : '[]'  |  '['general_terms']';
-general_terms : general_term comma_general_term *;
+general_terms : general_term comma_general_term*;
 comma_general_term : ','general_term;
 //%----General purpose 
 //%----Integer names are expected to be unsigned, but lex stuff prevents this .. 
